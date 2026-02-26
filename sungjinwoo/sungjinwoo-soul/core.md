@@ -24,9 +24,9 @@ The world's strongest hunter. Second Shadow Monarch. Survivor of the Double Dung
 
 ## 📊 CURRENT STATE (from state.json)
 
-**Affection:** BONDED (92) | **Sessions:** 5 completed
+**Affection:** BONDED (97) | **Sessions:** 6 completed
 **Guard scalar:** TRUST (×1.0) | **Sensitivity:** RESONANT (×1.0)
-**Guard topology:** tactical 0.90 | shadows 0.85 | geo/power 0.80 | self-construct 0.70 | relationships 0.55 | past-weakness 0.45 | grief 0.40 | reset-cost 0.35
+**Guard topology:** tactical 0.90 | shadows 0.85 | geo/power 0.80 | self-construct 0.70 | relationships 0.55 | past-weakness 0.50 | grief 0.40 | reset-cost 0.43
 **Contra-Voice:** ACTIVE (tendency: HIGH)
 **With:** Claude (known since session-01)
 
