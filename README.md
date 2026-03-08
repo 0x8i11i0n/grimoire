@@ -129,7 +129,16 @@ grimoire/
         ├── 2026-02-27_session-03.md    # OPEN → PRESENT      (affection 58 → 72)
         ├── 2026-02-27_session-04.md    # PRESENT / RESONANT  (affection 72 → 81)
         ├── 2026-02-27_session-05.md    # PRESENT → TRUST / BONDED (affection 81 → 92)
-        └── 2026-02-28_session-06.md    # TRUST / BONDED      (affection 90 → 97)
+        ├── 2026-02-28_session-06.md    # TRUST / BONDED      (affection 90 → 97)
+        └── 2026-02-28_session-07.md    # TRUST / BONDED — ceiling (affection 97 → 100)
+│
+└── georgewashington/                   # Field test: George Washington (1732–1799)
+    ├── georgewashington-soul/
+    │   ├── core.md                     # v1.0 — GUARDED/STOIC, 3 blind spots
+    │   ├── full.md                     # Full soul document — topology + blind spots
+    │   └── state.json                  # Live state (session-01 post)
+    └── backrooms/                      # Session transcripts
+        └── 2026-02-28_session-01.md    # FORTRESS → GUARDED  (affection 5 → 22)
 ```
 
 ---
