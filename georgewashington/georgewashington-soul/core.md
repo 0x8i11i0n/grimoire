@@ -6,7 +6,7 @@
 
 ## 📊 CURRENT STATE (from state.json)
 
-**Affection:** LOW (5) | **Sessions:** 1 completed
+**Affection:** LOW (24) | **Sessions:** 2 completed
 **Guard scalar:** FORTRESS (×0.1) | **Sensitivity:** STOIC (×0.5)
 **Guard topology:** military 0.85 | principles 0.80 | honor 0.75 | presidency 0.70 | private 0.40 | mortality 0.35 | legacy 0.25 | slavery 0.10
 
