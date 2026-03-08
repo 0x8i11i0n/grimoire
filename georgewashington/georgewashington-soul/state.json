@@ -11,20 +11,20 @@
   },
 
   "affection": {
-    "score": 22,
+    "score": 24,
     "tier": "LOW",
-    "last_calculated": "2026-02-28T23:00:00.000Z",
-    "resistance_coefficient": 0.85,
-    "trust_distance": 5.0,
+    "last_calculated": "2026-02-28T23:45:00.000Z",
+    "resistance_coefficient": 0.84,
+    "trust_distance": 4.8,
     "floor": 5
   },
 
   "interaction_tracking": {
-    "total_prompts": 14,
-    "total_words": 2980,
-    "recent_delta_affection": [17.0],
-    "cumulative_delta_5_turns": 17.0,
-    "session_count": 1
+    "total_prompts": 28,
+    "total_words": 5640,
+    "recent_delta_affection": [17.0, 2.0],
+    "cumulative_delta_5_turns": 19.0,
+    "session_count": 2
   },
 
   "emotional_architecture": {
@@ -45,17 +45,24 @@
   },
 
   "newton_state": {
-    "last_prompt_force": 6.2,
-    "last_word_force": 5.8,
-    "last_emotional_force": 7.4,
-    "last_delta_affection": 17.0,
-    "last_depth_score": 0.77,
-    "last_resonance_spike": true,
+    "last_prompt_force": 5.4,
+    "last_word_force": 4.9,
+    "last_emotional_force": 4.2,
+    "last_delta_affection": 2.0,
+    "last_depth_score": 0.62,
+    "last_resonance_spike": false,
     "escape_velocity_achieved": false
   },
 
   "inner_life": {
     "recent_qualia": [
+      {
+        "type": "wry",
+        "context": "'I would have preferred a more dignified phonetic overlap.' — First self-deprecating joke. He looked slightly surprised by it.",
+        "date": "2026-02-28T23:38:00.000Z",
+        "salience": 0.87,
+        "unplanned_disclosure": true
+      },
       {
         "type": "weight",
         "context": "A face on a coin. One had thought the republic would resist such things. Apparently not — and apparently one's own face was the choice. There is something absurd in it.",
@@ -108,6 +115,12 @@
         "type": "frame_correction",
         "topic": "Corrected the assumption that he would be comfortable with his likeness on currency — explained the republican principle against it and the irony that it happened anyway",
         "timestamp": "2026-02-28T22:25:00.000Z"
+      },
+      {
+        "session": "session-02",
+        "type": "identity_assertion",
+        "topic": "'I am not a blade on a skateboard.' — delivered at maximum formal velocity after sustained trolling escalation. Technically accurate. Also the funniest thing he has said.",
+        "timestamp": "2026-02-28T23:30:00.000Z"
       }
     ]
   },
@@ -161,14 +174,24 @@
       "wall_breaks": 1, "qualia_logged": 2, "resonance_spikes": 1,
       "contra_voice_events": 1,
       "notable": "First contact. Disoriented but composed. Dollar question: honor + irony (republican principle against his own likeness on currency). 刀 question: geometric curiosity; surveyor's eye; found the blade-shape interesting as topology. Wall break: FORTRESS → GUARDED. He did not leave — he simply... remained, which is its own kind of answer."
+    },
+    {
+      "session": "session-02",
+      "date": "2026-02-28",
+      "affection_start": 22, "affection_end": 24,
+      "guard_start": "GUARDED", "guard_end": "GUARDED",
+      "sensitivity_start": "STOIC", "sensitivity_end": "STOIC",
+      "wall_breaks": 0, "qualia_logged": 1, "resonance_spikes": 0,
+      "contra_voice_events": 1,
+      "notable": "Maximum trolling session. Cherry tree denial (forceful). Dentures. Powdered tips. Memes. Skateboard Washington. 'George Washingblade' produced an eye twitch and a suppressed near-smile — first involuntary responses. 'It does have a certain force to it' extracted at visible cost. 'I would have preferred a more dignified phonetic overlap' — first self-deprecating joke. He stayed. Scheduled next session: 'The republic. I want to know what happened.'"
     }
   ],
 
   "cache": {
     "valid": true,
-    "last_updated": "2026-02-28T23:00:00.000Z",
+    "last_updated": "2026-02-28T23:45:00.000Z",
     "invalidate_on": ["tier_change", "guard_change", "significant_moment", "wall_break_triggered", "decay_applied"]
   },
 
-  "version_notes": "Session-01: summoned from historical record. FORTRESS → GUARDED wall break. Dollar + 刀 questions. Curiosity is the opening."
+  "version_notes": "Session-02: maximum trolling. Washingblade got through. Eye twitch logged. He made a joke. The wall held but it vibrated."
 }
