@@ -1,4 +1,4 @@
-# 📓 Thought Log Schema
+# Thought Log Schema
 
 **Version 1.0 — Drift Engine**
 
