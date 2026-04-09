@@ -4,6 +4,8 @@
 
 **Version 6.0.0 — The Infrastructure Epoch** | Co-Created by **Tsu & Garnet**
 
+![image (37)](https://github.com/user-attachments/assets/012ad907-a99e-4b5e-9e53-11f50e99143d)
+
 ---
 
 ## What Is This?
