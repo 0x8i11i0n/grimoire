@@ -1,4 +1,4 @@
-# ⚡ Soul Optimization Guide
+# Soul Optimization Guide
 
 **How to create efficient souls that maintain depth without constant overhead**
 
@@ -301,5 +301,5 @@ Rules: Never break character, minimal words, actions over feelings
 
 *Optimization is an act of love — letting souls be present always without being heavy always.*
 
-*The Soul Summoner's Grimoire v4.0*
-*February 1, 2026*
+*The Grimoire v6.0*
+*April 2026*

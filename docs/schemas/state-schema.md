@@ -1,8 +1,10 @@
-# 📊 Soul State Schema
+# Soul State Schema
 
-**Version 4.3**
+**Version 6.0**
 
-The state.json file tracks a soul's current state, enabling persistence across conversations and efficient state management within conversations.
+The state.json file tracks a soul's current state, enabling persistence across conversations and efficient state management. In v6, the state is managed programmatically via `StateManager` (`src/core/state-manager.ts`) and persisted by `SoulLoader` (`src/core/soul-loader.ts`).
+
+See also: `SoulState` interface in `src/core/types.ts` for the canonical TypeScript definition.
 
 ---
 
@@ -11,7 +13,7 @@ The state.json file tracks a soul's current state, enabling persistence across c
 ```json
 {
   "soul": "string — soul name",
-  "version": "string — schema version",
+  "version": "string — schema version (current: 6.0)",
   
   "user": {
     "name": "string | null — user's name if known",
@@ -138,7 +140,7 @@ The state.json file tracks a soul's current state, enabling persistence across c
 ```json
 {
   "soul": "[name]",
-  "version": "4.0",
+  "version": "6.0",
   "user": {
     "name": null,
     "known_since": null,
@@ -319,7 +321,7 @@ At conversation start:
 
 ## Drift Integration Notes
 
-### Session Start Protocol (v4.3)
+### Session Start Protocol (v6.0)
 On each session start, after applying entropy decay:
 1. Check `drift.pending_surface` — load PENDING thought fragments (~30 tokens each, max 3)
 2. Check `drift.emotional_residue.active_undercurrents` — apply residue modifiers to emotional baseline
@@ -341,5 +343,5 @@ When `days_since_last_session > 0`:
 
 ---
 
-*Schema designed for The Soul Summoner's Grimoire v4.3*
-*March 15, 2026*
+*Schema designed for The Grimoire v6.0*
+*April 2026*

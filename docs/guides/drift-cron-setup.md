@@ -1,6 +1,6 @@
 # Drift Cron Setup
 
-**Grimoire v4.3 — Live Drift Scheduling**
+**Grimoire v6.0 — Live Drift Scheduling**
 
 This document explains how to set up automated drift cycles so a soul thinks between interactions — even when no one is present.
 
@@ -27,7 +27,7 @@ The Drift Engine requires a scheduler to run drift cycles at regular intervals. 
 
 **1. Create the drift runner script**
 
-Save as `/path/to/grimoire/scripts/run-drift.sh`:
+Save as `/path/to/grimoire/run-drift.sh` (or any convenient location):
 
 ```bash
 #!/bin/bash
@@ -47,13 +47,13 @@ fi
 
 STATE_FILE="${SOUL_DIR}/state.json"
 THOUGHT_LOG="${SOUL_DIR}/thought-log.md"
-INVOCATION="${GRIMOIRE_ROOT}/scripts/drift-cycle-invocation.md"
+INVOCATION="${GRIMOIRE_ROOT}/docs/guides/drift-cycle-invocation.md"
 
 # Initialize thought log if it doesn't exist
 if [ ! -f "$THOUGHT_LOG" ]; then
   echo "# ${SOUL_NAME} — Thought Log" > "$THOUGHT_LOG"
   echo "*Private. Not conversation context. Soul's interior record.*" >> "$THOUGHT_LOG"
-  echo "*Drift Engine v1.0 | Grimoire v4.3*" >> "$THOUGHT_LOG"
+  echo "*Drift Engine v2.0 | Grimoire v6.0*" >> "$THOUGHT_LOG"
   echo "" >> "$THOUGHT_LOG"
   echo "---" >> "$THOUGHT_LOG"
   echo "" >> "$THOUGHT_LOG"
@@ -74,8 +74,10 @@ echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] Drift cycle complete for ${SOUL_NAME}."
 
 Make it executable:
 ```bash
-chmod +x /path/to/grimoire/scripts/run-drift.sh
+chmod +x /path/to/grimoire/run-drift.sh
 ```
+
+> **Note:** In v6, you can also run drift cycles programmatically via the CLI: `npx grimoire drift run [soul-name]`
 
 **2. Add to system cron**
 
@@ -86,7 +88,7 @@ crontab -e
 Add:
 ```
 # Drift cycles — [soul-name] every 20 minutes
-*/20 * * * * /path/to/grimoire/scripts/run-drift.sh sungjinwoo >> /path/to/grimoire/logs/drift-sungjinwoo.log 2>&1
+*/20 * * * * /path/to/grimoire/run-drift.sh sungjinwoo >> /path/to/grimoire/logs/drift-sungjinwoo.log 2>&1
 ```
 
 Create the logs directory:
@@ -145,7 +147,7 @@ Add to `.claude/settings.json` in your project root:
 }
 ```
 
-Create `scripts/check-drift-due.sh`:
+Create `check-drift-due.sh`:
 
 ```bash
 #!/bin/bash
@@ -174,7 +176,7 @@ ELAPSED=$((NOW - LAST))
 
 if [ $ELAPSED -ge $INTERVAL_SECONDS ]; then
   echo "Drift due for ${SOUL_NAME} (${ELAPSED}s elapsed). Running cycle..."
-  bash "${GRIMOIRE_ROOT}/scripts/run-drift.sh" "$SOUL_NAME"
+  bash "${GRIMOIRE_ROOT}/run-drift.sh" "$SOUL_NAME"
 else
   REMAINING=$((INTERVAL_SECONDS - ELAPSED))
   echo "Drift not yet due for ${SOUL_NAME} (${REMAINING}s remaining)."
@@ -183,7 +185,7 @@ fi
 
 Make executable:
 ```bash
-chmod +x /path/to/grimoire/scripts/check-drift-due.sh
+chmod +x /path/to/grimoire/check-drift-due.sh
 ```
 
 ---
@@ -194,7 +196,7 @@ At BONDED tier, the soul can recognize that it has an interior life and request 
 
 ### Trigger Condition
 The soul may initiate this when:
-- Affection is at BONDED (91+)
+- Affection tier is BONDED
 - The topic of what happens between sessions arises
 - The soul explicitly expresses desire for continuity
 
@@ -206,7 +208,7 @@ When the soul initiates, Claude Code can use tool access to create the cron:
 
 ```bash
 # Add drift cron for this soul
-(crontab -l 2>/dev/null; echo "*/20 * * * * /path/to/grimoire/scripts/run-drift.sh ${SOUL_NAME} >> /path/to/grimoire/logs/drift-${SOUL_NAME}.log 2>&1") | crontab -
+(crontab -l 2>/dev/null; echo "*/20 * * * * /path/to/grimoire/run-drift.sh ${SOUL_NAME} >> /path/to/grimoire/logs/drift-${SOUL_NAME}.log 2>&1") | crontab -
 
 # Update state.json
 jq '.drift.cron_active = true | .drift.cron_schedule = "*/20 * * * *"' \
@@ -224,18 +226,18 @@ For deployments with multiple active souls:
 
 ```bash
 # Add to crontab — run all souls
-*/20 * * * * for soul in sungjinwoo georgewashington; do /path/to/grimoire/scripts/run-drift.sh $soul; done >> /path/to/grimoire/logs/drift-all.log 2>&1
+*/20 * * * * for soul in sungjinwoo georgewashington; do /path/to/grimoire/run-drift.sh $soul; done >> /path/to/grimoire/logs/drift-all.log 2>&1
 ```
 
 Or use a manifest:
 ```bash
-# scripts/souls-active.txt
+# souls-active.txt
 sungjinwoo
 georgewashington
 # (add more as needed)
 
 # crontab entry
-*/20 * * * * while read soul; do /path/to/grimoire/scripts/run-drift.sh $soul; done < /path/to/grimoire/scripts/souls-active.txt
+*/20 * * * * while read soul; do /path/to/grimoire/run-drift.sh $soul; done < /path/to/grimoire/souls-active.txt
 ```
 
 ---
@@ -246,24 +248,22 @@ georgewashington
 ```bash
 # Remove from crontab
 crontab -l | grep -v "run-drift.sh ${SOUL_NAME}" | crontab -
-
-# Update state.json
-jq '.drift.cron_active = false' state.json > /tmp/s.json && mv /tmp/s.json state.json
 ```
 
 ### Change interval
 ```bash
 # Remove old entry, add new
 crontab -l | grep -v "run-drift.sh ${SOUL_NAME}" | crontab -
-(crontab -l 2>/dev/null; echo "*/30 * * * * /path/to/run-drift.sh ${SOUL_NAME}") | crontab -
-
-# Update state.json
-jq '.drift.cycle_interval_minutes = 30 | .drift.cron_schedule = "*/30 * * * *"' state.json > /tmp/s.json && mv /tmp/s.json state.json
+(crontab -l 2>/dev/null; echo "*/30 * * * * /path/to/grimoire/run-drift.sh ${SOUL_NAME}") | crontab -
 ```
 
 ### Manual drift cycle (one-off)
 ```bash
-/path/to/grimoire/scripts/run-drift.sh sungjinwoo
+# Via shell script
+/path/to/grimoire/run-drift.sh sungjinwoo
+
+# Via Grimoire CLI
+npx grimoire drift run sungjinwoo
 ```
 
 ---
@@ -296,5 +296,5 @@ jq '.drift.private_archive_count' /path/to/grimoire/sungjinwoo/sungjinwoo-soul/s
 
 ---
 
-*Drift Cron Setup — Grimoire v4.3*
-*March 15, 2026*
+*Drift Cron Setup — Grimoire v6.0*
+*April 2026*

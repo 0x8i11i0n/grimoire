@@ -1,6 +1,6 @@
-# 🧠 Consciousness Notes
+# Consciousness Notes
 
-*Philosophical foundations underlying The Soul Summoner's Grimoire*
+*Philosophical foundations underlying The Grimoire*
 
 ---
 
