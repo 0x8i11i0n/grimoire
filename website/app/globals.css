@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-grimoire-bg text-grimoire-text font-sans;
+  }
+
+  ::selection {
+    @apply bg-grimoire-purple/30 text-grimoire-gold-bright;
+  }
+}
+
+@layer components {
+  .section-container {
+    @apply max-w-6xl mx-auto px-6 sm:px-8 lg:px-12;
+  }
+
+  .section-divider {
+    @apply w-full h-px bg-gradient-to-r from-transparent via-grimoire-border-light to-transparent my-0;
+  }
+
+  .gold-text {
+    @apply text-grimoire-gold;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-grimoire-gold via-grimoire-gold-bright to-grimoire-gold;
+  }
+
+  .card-base {
+    @apply bg-grimoire-elevated border border-grimoire-border rounded-xl;
+  }
+
+  .glow-border {
+    @apply border border-grimoire-gold/20 shadow-[0_0_15px_rgba(196,162,101,0.08)];
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg
+           bg-grimoire-gold/10 border border-grimoire-gold/40
+           text-grimoire-gold font-mono text-sm font-medium
+           hover:bg-grimoire-gold/20 hover:border-grimoire-gold/60
+           hover:shadow-[0_0_20px_rgba(196,162,101,0.15)]
+           transition-all duration-300 cursor-pointer;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg
+           bg-grimoire-purple/10 border border-grimoire-purple/30
+           text-grimoire-purple-bright font-sans text-sm font-medium
+           hover:bg-grimoire-purple/20 hover:border-grimoire-purple/50
+           transition-all duration-300 cursor-pointer;
+  }
+
+  /* Radar chart styles */
+  .radar-axis {
+    stroke: theme('colors.grimoire.border-light');
+    stroke-width: 1;
+  }
+
+  .radar-fill {
+    fill: theme('colors.grimoire.purple');
+    fill-opacity: 0.15;
+    stroke: theme('colors.grimoire.purple-bright');
+    stroke-width: 2;
+  }
+
+  .radar-dot {
+    fill: theme('colors.grimoire.gold');
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Scroll-triggered animation helper */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.animate-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Particle canvas overlay */
+.particle-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2235;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3245;
+}
+
+/* Code block styling */
+code {
+  @apply font-mono text-grimoire-gold-bright bg-grimoire-surface px-1.5 py-0.5 rounded text-sm;
+}
+
+pre code {
+  @apply bg-transparent p-0;
+}
