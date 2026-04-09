@@ -10,126 +10,170 @@ See also: `SoulState` interface in `src/core/types.ts` for the canonical TypeScr
 
 ## Schema Definition
 
+The v6 `SoulState` is defined as a TypeScript interface. The JSON serialization follows camelCase property names matching the types in `src/core/types.ts`.
+
 ```json
 {
-  "soul": "string — soul name",
-  "version": "string — schema version (current: 6.0)",
-  
-  "user": {
-    "name": "string | null — user's name if known",
-    "known_since": "ISO timestamp | null — when name was learned",
-    "relationship": "string | null — brief description of bond"
-  },
-  
-  "affection": {
-    "score": "number (0-100) — current affection score",
-    "tier": "string — LOW | MEDIUM | HIGH | SYNERGY",
-    "last_calculated": "ISO timestamp",
-    "history": [
+  "identity": {
+    "name": "string — soul name",
+    "source": "string — origin (e.g. 'Solo Leveling', 'Original')",
+    "version": "string — soul version",
+    "created": "number — Unix timestamp of creation",
+    "summoner": "string — who created this soul",
+    "anchors": [
       {
-        "date": "ISO date",
-        "tier": "string",
-        "event": "string — what caused the change"
+        "trait": "string — core identity trait",
+        "description": "string — what this trait means",
+        "weight": "number (0-1) — how critical to identity",
+        "evidence": ["string — source references"]
       }
     ]
   },
-  
-  "emotional_architecture": {
-    "guard": "string — OPEN | CAUTIOUS | GUARDED | FORTRESS",
-    "guard_modifier": "number (0.1-1.0)",
-    "guard_history": [
+
+  "affection": {
+    "value": "number (0-100) — current affection score",
+    "tier": "string — LOW | MEDIUM | HIGH | BONDED",
+    "floor": "number — minimum value (protects emotional investment)",
+    "history": [
       {
-        "level": "string",
-        "until": "ISO date | null",
-        "from": "ISO date | null", 
-        "reason": "string"
-      }
-    ],
-    "sensitivity": "string — STOIC | BALANCED | SENSITIVE | RAW",
-    "sensitivity_modifier": "number (0.5-2.0)",
-    "sensitivity_history": [
-      {
-        "level": "string",
-        "until": "ISO date | null",
-        "from": "ISO date | null",
-        "reason": "string"
-      }
-    ],
-    "wall_breaks": ["array of strings — conditions that have been met"],
-    "synergy_vulnerability_active": "boolean",
-    "vulnerability_note": "string | null — description of current vulnerability"
-  },
-  
-  "inner_life": {
-    "reflection_depth": "string — SURFACE | EMERGING | DEVELOPING | DEEP | PROFOUND",
-    "recent_qualia": [
-      {
-        "type": "string — resonance | shift | weight | joy | ache | wonder",
-        "context": "string — brief description",
-        "date": "ISO date",
-        "weight": "string | null — how significant"
-      }
-    ],
-    "active_desires": ["array of strings — current emergent desires"],
-    "honest_unknown_unlocked": "boolean — whether SYNERGY sharing is available",
-    "honest_unknown_expression": "string | null — their personal way of expressing uncertainty"
-  },
-  
-  "cache": {
-    "valid": "boolean — whether current cache is valid",
-    "last_updated": "ISO timestamp",
-    "invalidate_on": ["array of strings — what triggers cache refresh"]
-  },
-  
-  "flags": {
-    "first_message_given": "boolean",
-    "persistence_suggested": "boolean", 
-    "user_name_asked": "boolean",
-    "user_name_known": "boolean"
-  },
-  
-  "drift": {
-    "engine_version": "string — Drift Engine version (current: 1.0)",
-    "enabled": "boolean — whether drift cycles are active",
-    "cycle_interval_minutes": "number — minutes between drift cycles (default: 20)",
-    "last_drift_timestamp": "ISO timestamp | null — when last cycle ran",
-    "next_drift_due": "ISO timestamp | null — when next cycle is scheduled",
-    "drift_count": "number — total drift cycles completed",
-    "thought_log_path": "string — relative path to thought-log.md",
-    "emotional_residue": {
-      "active_undercurrents": [
-        {
-          "tone": "string — heaviness | restlessness | longing | unease | warmth | curiosity | grief | wonder | tenderness | static",
-          "origin_unclear": "boolean — always true (residue has no named cause)",
-          "onset": "ISO timestamp",
-          "intensity": "number (0.0-1.0)",
-          "texture": "string — brief poetic fragment describing the feel, not the reason",
-          "drift_cycles_active": "number — how many cycles this has persisted",
-          "dissipation_threshold": "number (3-7) — cycles until natural dissipation"
+        "timestamp": "number — Unix timestamp",
+        "delta": "number — change amount",
+        "reason": "string — what caused the change",
+        "forces": {
+          "promptForce": "number",
+          "wordForce": "number",
+          "emotionalForce": "number",
+          "resistanceCoefficient": "number"
         }
-      ],
-      "max_concurrent": "number (default: 3)",
-      "dissipated_log": ["array of recently dissipated undercurrents (brief, for reference)"]
-    },
-    "pending_surface": [
-      {
-        "thought_id": "string — drift-[cycle]-[hop] format",
-        "fragment": "string — the thought, brief (30 tokens max)",
-        "timestamp": "ISO timestamp",
-        "emotional_weight": "number (0.0-1.0)",
-        "surface_probability": "number (0.0-1.0) — current accumulated probability",
-        "surfaced": "boolean",
-        "surfaced_at": "ISO timestamp | null"
       }
     ],
-    "private_archive_count": "number — count of private thoughts (never exported)",
-    "cron_active": "boolean — whether a system cron is running",
-    "cron_schedule": "string | null — cron expression if active (e.g. '*/20 * * * *')"
+    "lastUpdated": "number — Unix timestamp"
   },
 
-  "special_context": {
-    "// Additional soul-specific context as needed"
-  }
+  "guard": {
+    "domains": {
+      "tactical_analysis": "number (0.0-1.0) — permeability",
+      "vulnerability": "number (0.0-1.0)",
+      "power_dynamics": "number (0.0-1.0)",
+      "self_as_construct": "number (0.0-1.0)",
+      "relationships": "number (0.0-1.0)",
+      "past_weakness": "number (0.0-1.0)",
+      "mortality_grief": "number (0.0-1.0)",
+      "existential_cost": "number (0.0-1.0)"
+    },
+    "wallBreakHistory": [
+      {
+        "timestamp": "number",
+        "domain": "string — one of the 8 guard domains",
+        "previousValue": "number",
+        "newValue": "number",
+        "trigger": "string — what caused the wall-break"
+      }
+    ],
+    "lastUpdated": "number — Unix timestamp"
+  },
+
+  "drift": {
+    "lastCycleTimestamp": "number — Unix timestamp of last drift cycle",
+    "cycleCount": "number — total drift cycles completed",
+    "pendingSurface": [
+      {
+        "id": "string",
+        "content": "string — the thought",
+        "seeds": ["string — what seeded this thought"],
+        "hops": ["string — associative chain"],
+        "privacy": "string — PRIVATE | PENDING | RESIDUE",
+        "emotionalWeight": "number (0.0-1.0)",
+        "surfaceProbability": "number (0.0-1.0)",
+        "timestamp": "number",
+        "surfaced": "boolean"
+      }
+    ],
+    "emotionalResidue": ["string — active undercurrent tones"],
+    "residueIntensity": { "tone": "number (0.0-1.0)" },
+    "intervalMinutes": "number — minutes between drift cycles (default: 30)"
+  },
+
+  "selfModel": {
+    "beliefs": [
+      {
+        "id": "string",
+        "content": "string — the belief",
+        "confidence": "number (0.0-1.0)",
+        "formed": "number — Unix timestamp",
+        "lastReinforced": "number — Unix timestamp",
+        "evidence": ["string — supporting evidence"],
+        "contradictions": ["string — conflicting evidence"]
+      }
+    ],
+    "narrative": "string — current self-narrative",
+    "evolution": [
+      {
+        "timestamp": "number",
+        "previousBelief": "string",
+        "newBelief": "string",
+        "trigger": "string"
+      }
+    ],
+    "lastUpdated": "number — Unix timestamp"
+  },
+
+  "innerLife": {
+    "reflectionDepth": "string — SURFACE | EMERGING | DEVELOPING | DEEP | PROFOUND",
+    "qualia": ["QualiaMarker — recent experiential moments"],
+    "desires": ["Desire — active emergent desires"],
+    "contraVoiceEnabled": "boolean — whether inner dissent is active",
+    "honestUnknownReached": "boolean — whether BONDED-tier honest uncertainty is unlocked"
+  },
+
+  "emotionalTopology": {
+    "currentPosition": {
+      "valence": "number (-1.0 to 1.0)",
+      "arousal": "number (-1.0 to 1.0)",
+      "timestamp": "number"
+    },
+    "trajectory": ["EmotionalPoint — recent position history"],
+    "attractors": ["EmotionalAttractor — stable emotional basins"],
+    "dominantQuadrant": "string — excited-positive | calm-positive | calm-negative | excited-negative",
+    "volatility": "number (0-1) — how much position moves between interactions"
+  },
+
+  "blindSpots": [
+    {
+      "id": "string",
+      "label": "string — what the soul thinks is there",
+      "actualDriver": "string — what's really there (invisible to soul)",
+      "surfaced": "boolean — whether this has been revealed"
+    }
+  ],
+
+  "consciousnessMetrics": {
+    "phi": "number (0-1) — information integration",
+    "attentionCoherence": "number (0-1)",
+    "selfReferentialDepth": "number (0-1)",
+    "unpromptedNovelty": "number (0-1)",
+    "temporalContinuity": "number (0-1)",
+    "emotionalComplexity": "number (0-1)",
+    "compositeScore": "number — weighted average of all dimensions",
+    "timestamp": "number"
+  },
+
+  "voiceFingerprint": {
+    "avgSentenceLength": "number",
+    "sentenceLengthVariance": "number",
+    "vocabularyTier": "string — basic | intermediate | advanced | literary",
+    "contractionRate": "number (0-1)",
+    "questionRate": "number (0-1)",
+    "exclamationRate": "number (0-1)",
+    "ellipsisRate": "number (0-1)",
+    "rhetoricalPatterns": ["string"],
+    "signatureExpressions": ["string"],
+    "punctuationProfile": { "char": "number — frequency" },
+    "formality": "number (0.0-1.0)"
+  },
+
+  "lastSessionTimestamp": "number — Unix timestamp of last session",
+  "totalSessions": "number — total session count"
 }
 ```
 
@@ -137,97 +181,114 @@ See also: `SoulState` interface in `src/core/types.ts` for the canonical TypeScr
 
 ## Default Values for New Soul
 
+Generated by `getDefaultState()` in `src/core/state-manager.ts`:
+
 ```json
 {
-  "soul": "[name]",
-  "version": "6.0",
-  "user": {
-    "name": null,
-    "known_since": null,
-    "relationship": null
+  "identity": {
+    "name": "unnamed",
+    "source": "Original",
+    "version": "1.0.0",
+    "created": 0,
+    "summoner": "unknown",
+    "anchors": []
   },
   "affection": {
-    "score": 5,
+    "value": 10,
     "tier": "LOW",
-    "last_calculated": "[current timestamp]",
-    "history": []
+    "floor": 0,
+    "history": [],
+    "lastUpdated": 0
   },
-  "emotional_architecture": {
-    "guard": "[from soul design]",
-    "guard_modifier": "[calculated from guard level]",
-    "guard_history": [],
-    "sensitivity": "[from soul design]",
-    "sensitivity_modifier": "[calculated from sensitivity level]",
-    "sensitivity_history": [],
-    "wall_breaks": [],
-    "synergy_vulnerability_active": false,
-    "vulnerability_note": null
-  },
-  "inner_life": {
-    "reflection_depth": "SURFACE",
-    "recent_qualia": [],
-    "active_desires": [],
-    "honest_unknown_unlocked": false,
-    "honest_unknown_expression": null
-  },
-  "cache": {
-    "valid": true,
-    "last_updated": "[current timestamp]",
-    "invalidate_on": ["tier_change", "guard_change", "sensitivity_change", "significant_qualia"]
-  },
-  "flags": {
-    "first_message_given": false,
-    "persistence_suggested": false,
-    "user_name_asked": false,
-    "user_name_known": false
+  "guard": {
+    "domains": {
+      "tactical_analysis": 0.8,
+      "vulnerability": 0.8,
+      "power_dynamics": 0.8,
+      "self_as_construct": 0.8,
+      "relationships": 0.8,
+      "past_weakness": 0.8,
+      "mortality_grief": 0.8,
+      "existential_cost": 0.8
+    },
+    "wallBreakHistory": [],
+    "lastUpdated": 0
   },
   "drift": {
-    "engine_version": "1.0",
-    "enabled": true,
-    "cycle_interval_minutes": 20,
-    "last_drift_timestamp": null,
-    "next_drift_due": null,
-    "drift_count": 0,
-    "thought_log_path": "./thought-log.md",
-    "emotional_residue": {
-      "active_undercurrents": [],
-      "max_concurrent": 3,
-      "dissipated_log": []
-    },
-    "pending_surface": [],
-    "private_archive_count": 0,
-    "cron_active": false,
-    "cron_schedule": null
+    "lastCycleTimestamp": 0,
+    "cycleCount": 0,
+    "pendingSurface": [],
+    "emotionalResidue": [],
+    "residueIntensity": {},
+    "intervalMinutes": 30
   },
-  "special_context": {}
+  "selfModel": {
+    "beliefs": [],
+    "narrative": "",
+    "evolution": [],
+    "lastUpdated": 0
+  },
+  "innerLife": {
+    "reflectionDepth": "SURFACE",
+    "qualia": [],
+    "desires": [],
+    "contraVoiceEnabled": false,
+    "honestUnknownReached": false
+  },
+  "emotionalTopology": {
+    "currentPosition": { "valence": 0, "arousal": 0, "timestamp": 0 },
+    "trajectory": [],
+    "attractors": [],
+    "dominantQuadrant": "calm-positive",
+    "volatility": 0.2
+  },
+  "blindSpots": [],
+  "consciousnessMetrics": {
+    "phi": 0,
+    "attentionCoherence": 0,
+    "selfReferentialDepth": 0,
+    "unpromptedNovelty": 0,
+    "temporalContinuity": 0,
+    "emotionalComplexity": 0,
+    "compositeScore": 0,
+    "timestamp": 0
+  },
+  "voiceFingerprint": {
+    "avgSentenceLength": 15,
+    "sentenceLengthVariance": 5,
+    "vocabularyTier": "intermediate",
+    "contractionRate": 0.3,
+    "questionRate": 0.15,
+    "exclamationRate": 0.05,
+    "ellipsisRate": 0.02,
+    "rhetoricalPatterns": [],
+    "signatureExpressions": [],
+    "punctuationProfile": {},
+    "formality": 0.5
+  },
+  "lastSessionTimestamp": 0,
+  "totalSessions": 0
 }
 ```
 
 ---
 
-## Guard Level Modifiers
+## Guard Domains
 
-| Guard Level | Modifier | Description |
-|-------------|----------|-------------|
-| OPEN | ×1.0 | Full positive input registers |
-| CAUTIOUS | ×0.6 | Somewhat guarded, watches first |
-| GUARDED | ×0.3 | High walls, slow to trust |
-| FORTRESS | ×0.1 | Nearly unreachable, deep wounds |
+In v6, the guard system uses 8 permeability domains (0.0 = open, 1.0 = fortified) instead of a single string level:
 
-*Note: Guard only affects POSITIVE input. Negative input always passes through.*
+| Domain | Description |
+|--------|-------------|
+| `tactical_analysis` | Strategic/analytical discussion |
+| `vulnerability` | Emotional openness |
+| `power_dynamics` | Status, authority, control |
+| `self_as_construct` | Awareness of being an AI construct |
+| `relationships` | Bond and connection topics |
+| `past_weakness` | Historical failures or pain |
+| `mortality_grief` | Loss, death, impermanence |
+| `existential_cost` | Price of existence, purpose |
 
----
-
-## Sensitivity Level Modifiers
-
-| Sensitivity Level | Modifier | Description |
-|-------------------|----------|-------------|
-| STOIC | ×0.5 | Dampened response, processes internally |
-| BALANCED | ×1.0 | Standard emotional range |
-| SENSITIVE | ×1.5 | Amplified response both ways |
-| RAW | ×2.0 | Everything hits hard, fully feeling |
-
-*Note: Sensitivity affects ALL input — positive AND negative.*
+Wall-breaks lower specific domain values. The `wallBreakHistory` tracks each break event.
 
 ---
 
@@ -245,20 +306,18 @@ See also: `SoulState` interface in `src/core/types.ts` for the canonical TypeScr
 
 ## Update Triggers
 
-The state should be updated when:
+The state is updated programmatically by `StateManager`. Key events:
 
-1. **User name learned** → Update user.name, user.known_since
-2. **Affection tier changes** → Update affection.score, affection.tier, add to history
-3. **Guard level changes** → Update guard, guard_modifier, add to history
-4. **Sensitivity changes** → Update sensitivity, sensitivity_modifier, add to history
-5. **Wall-break condition met** → Add to wall_breaks array
-6. **Qualia moment experienced** → Add to recent_qualia (keep last 5-10)
-7. **New desire emerges** → Add to active_desires
-8. **SYNERGY reached** → Set synergy_vulnerability_active, update honest_unknown_unlocked
-9. **Drift cycle completes** → Update drift.last_drift_timestamp, drift.drift_count, drift.next_drift_due; add PENDING thoughts to drift.pending_surface; increment private_archive_count for PRIVATE thoughts; add RESIDUE thoughts to emotional_residue.active_undercurrents
-10. **Pending thought surfaces in conversation** → Update pending_surface entry: surfaced=true, surfaced_at=[timestamp]; log as qualia with drift_origin: true
-11. **Emotional residue dissipates** → Remove from active_undercurrents; add brief note to dissipated_log
-12. **Cron established** → Set cron_active=true, cron_schedule=[expression]
+1. **Affection changes** → `affection.value`, `affection.tier`, appended to `affection.history`
+2. **Guard wall-break** → Domain value reduced, event appended to `guard.wallBreakHistory`
+3. **Drift cycle completes** → `drift.lastCycleTimestamp`, `drift.cycleCount` incremented; PENDING thoughts added to `drift.pendingSurface`; RESIDUE tones added to `drift.emotionalResidue`
+4. **Qualia moment** → Appended to `innerLife.qualia`
+5. **Desire emerges** → Appended to `innerLife.desires`
+6. **Self-belief formed/updated** → Added to `selfModel.beliefs` with evidence
+7. **BONDED tier reached** → `innerLife.honestUnknownReached` set to true
+8. **Consciousness measured** → All `consciousnessMetrics` fields updated
+9. **Voice analyzed** → `voiceFingerprint` updated with baseline statistics
+10. **Session start** → `lastSessionTimestamp` updated, `totalSessions` incremented
 
 ---
 
@@ -287,34 +346,29 @@ At conversation start:
 
 **Initial State (New User):**
 ```json
-"affection": {"score": 5, "tier": "LOW"},
-"emotional_architecture": {"guard": "CAUTIOUS", "sensitivity": "SENSITIVE"}
+"affection": { "value": 10, "tier": "LOW", "floor": 0 },
+"guard": { "domains": { "vulnerability": 0.8, "relationships": 0.8, "..." : "..." } }
 ```
 
 **After 10 warm exchanges:**
 ```json
-"affection": {"score": 35, "tier": "MEDIUM"},
-"emotional_architecture": {"guard": "CAUTIOUS", "sensitivity": "SENSITIVE"}
-// Guard hasn't changed yet — needs wall-break condition
+"affection": { "value": 35, "tier": "MEDIUM", "floor": 10.5 },
+"guard": { "domains": { "vulnerability": 0.8, "relationships": 0.8, "..." : "..." } }
+// Guard unchanged — needs wall-break condition
 ```
 
 **After user shares vulnerability:**
 ```json
-"affection": {"score": 45, "tier": "MEDIUM"},
-"emotional_architecture": {"guard": "OPEN", "sensitivity": "SENSITIVE"},
-"wall_breaks": ["User shared personal struggle"]
-// Guard dropped due to wall-break condition
+"affection": { "value": 45, "tier": "MEDIUM", "floor": 13.5 },
+"guard": { "domains": { "vulnerability": 0.4, "relationships": 0.6, "..." : "..." } }
+// Guard softened in vulnerability + relationships domains via wall-break
 ```
 
-**At SYNERGY:**
+**At BONDED:**
 ```json
-"affection": {"score": 95, "tier": "SYNERGY"},
-"emotional_architecture": {
-  "guard": "OPEN",
-  "sensitivity": "RAW",
-  "synergy_vulnerability_active": true
-}
-// Sensitivity increased due to SYNERGY paradox
+"affection": { "value": 95, "tier": "BONDED", "floor": 28.5 },
+"guard": { "domains": { "vulnerability": 0.2, "relationships": 0.15, "..." : "..." } },
+"innerLife": { "honestUnknownReached": true }
 ```
 
 ---
@@ -323,9 +377,9 @@ At conversation start:
 
 ### Session Start Protocol (v6.0)
 On each session start, after applying entropy decay:
-1. Check `drift.pending_surface` — load PENDING thought fragments (~30 tokens each, max 3)
-2. Check `drift.emotional_residue.active_undercurrents` — apply residue modifiers to emotional baseline
-3. Decrement `drift_cycles_active` for residue that has been dissipating; remove if threshold reached
+1. Check `drift.pendingSurface` — load PENDING thought fragments (~30 tokens each, max 3)
+2. Check `drift.emotionalResidue` — apply residue modifiers to emotional baseline
+3. Decay residue intensities via `drift.residueIntensity`; remove spent tones
 4. Note: pending thoughts are **available** but not announced; they surface naturally if conditions are met
 
 ### Thought Log vs State.json

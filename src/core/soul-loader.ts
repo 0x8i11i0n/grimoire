@@ -173,14 +173,31 @@ export class SoulLoader {
     ]);
 
     let state: SoulState;
+    const defaults = getDefaultState();
     if (stateRaw) {
       try {
-        state = JSON.parse(stateRaw) as SoulState;
+        const parsed = JSON.parse(stateRaw);
+        // Deep-merge parsed state with defaults to handle missing fields
+        // from older versions
+        state = {
+          ...defaults,
+          ...parsed,
+          identity: { ...defaults.identity, ...(parsed.identity || {}) },
+          affection: { ...defaults.affection, ...(parsed.affection || {}) },
+          guard: { ...defaults.guard, ...(parsed.guard || {}), domains: { ...defaults.guard.domains, ...((parsed.guard || {}).domains || {}) } },
+          drift: { ...defaults.drift, ...(parsed.drift || {}) },
+          selfModel: { ...defaults.selfModel, ...(parsed.selfModel || {}) },
+          innerLife: { ...defaults.innerLife, ...(parsed.innerLife || {}) },
+          emotionalTopology: { ...defaults.emotionalTopology, ...(parsed.emotionalTopology || {}), currentPosition: { ...defaults.emotionalTopology.currentPosition, ...((parsed.emotionalTopology || {}).currentPosition || {}) } },
+          consciousnessMetrics: { ...defaults.consciousnessMetrics, ...(parsed.consciousnessMetrics || {}) },
+          voiceFingerprint: { ...defaults.voiceFingerprint, ...(parsed.voiceFingerprint || {}) },
+          blindSpots: parsed.blindSpots ?? defaults.blindSpots,
+        };
       } catch {
-        state = getDefaultState();
+        state = defaults;
       }
     } else {
-      state = getDefaultState();
+      state = defaults;
     }
 
     return {

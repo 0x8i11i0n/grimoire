@@ -125,7 +125,7 @@ export class EntropyEngine {
       ...affection,
       value: clampedValue,
       tier: newTier,
-      floor: Math.min(affection.floor, newFloor), // floor can erode but not grow from decay
+      floor: Math.max(Math.min(affection.floor, newFloor), clampedValue * 0.3), // floor erodes but never below 30% of current value
       lastUpdated: Date.now(),
     };
   }
@@ -181,7 +181,6 @@ export class EntropyEngine {
       return qualia;
     }
 
-    const now = Date.now();
     const result: QualiaMarker[] = [];
 
     for (const marker of qualia) {

@@ -250,7 +250,7 @@ export class Mirror {
 
       // Decay scales with how long it's been un-reinforced
       // Older unreinforced beliefs decay faster
-      const decayMultiplier = 1 + Math.log2(Math.max(totalDecayDays, 1)) * 0.1;
+      const decayMultiplier = 1 + Math.log2(Math.max(daysSinceReinforced, 1)) * 0.1;
       const totalDecay = BASE_DAILY_DECAY * days * decayMultiplier;
       const newConfidence = belief.confidence - totalDecay;
 

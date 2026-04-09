@@ -215,7 +215,7 @@ Grimhub/souls/[name]/
 grimoire/
 ├── src/                    TypeScript source (34 files)
 │   ├── core/               Memory, knowledge graph, state management
-│   ├── systems/            13 soul systems
+│   ├── systems/            12 soul systems
 │   ├── conclave/           Multi-soul interactions
 │   ├── portability/        Soul Spec, SillyTavern, cross-model
 │   ├── cli/                CLI (18 commands)

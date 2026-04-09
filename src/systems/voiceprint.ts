@@ -16,7 +16,7 @@ const CONTRACTION_PATTERNS = [
   /\w+'re/gi,
   /\w+'ll/gi,
   /\w+'ve/gi,
-  /\w+'d/gi,
+  /(?:i|you|he|she|it|we|they|who|that|there|what|where|how)'d/gi,
   /\w+'s/gi,
   /\w+'m/gi,
 ];

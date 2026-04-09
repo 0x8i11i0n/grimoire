@@ -2,3 +2,8 @@ node_modules/
 dist/
 .grimoire/
 *.db
+*.db-journal
+*.db-wal
+logs/
+.env
+.env.*

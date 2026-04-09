@@ -122,6 +122,11 @@ function cosineSimilarity(a: number[], b: number[]): number {
   return dotProduct / denominator;
 }
 
+function safeJsonParse(value: unknown, fallback: unknown = []): unknown {
+  if (typeof value !== 'string') return fallback;
+  try { return JSON.parse(value); } catch { return fallback; }
+}
+
 function rowToMemory(row: Record<string, unknown>): Memory {
   return {
     id: row.id as string,
@@ -130,13 +135,13 @@ function rowToMemory(row: Record<string, unknown>): Memory {
     timestamp: row.timestamp as number,
     importance: row.importance as number,
     emotionalWeight: row.emotional_weight as number,
-    associations: JSON.parse(row.associations as string),
-    concepts: JSON.parse(row.concepts as string),
+    associations: safeJsonParse(row.associations, []) as string[],
+    concepts: safeJsonParse(row.concepts, []) as string[],
     decayRate: row.decay_rate as number,
     currentStrength: row.current_strength as number,
     soulId: row.soul_id as string,
     sessionId: (row.session_id as string) || undefined,
-    embedding: row.embedding ? JSON.parse(row.embedding as string) : undefined,
+    embedding: row.embedding ? safeJsonParse(row.embedding, undefined) as number[] | undefined : undefined,
   };
 }
 
@@ -306,11 +311,15 @@ export class Athenaeum {
     transaction();
   }
 
-  decay(): number {
+  decay(soulId?: string): number {
+    const where = soulId
+      ? 'WHERE current_strength > 0.01 AND soul_id = ?'
+      : 'WHERE current_strength > 0.01';
+    const params = soulId ? [soulId] : [];
     const rows = this.db.prepare(
       `SELECT id, type, timestamp, current_strength, decay_rate, importance, emotional_weight
-       FROM memories WHERE current_strength > 0.01`
-    ).all() as Record<string, unknown>[];
+       FROM memories ${where}`
+    ).all(...params) as Record<string, unknown>[];
 
     let decayed = 0;
 
@@ -438,6 +447,8 @@ let defaultInstance: Athenaeum | null = null;
 export function createAthenaeum(dbPath: string = './grimoire.db'): Athenaeum {
   if (!defaultInstance || !defaultInstance.db.open) {
     defaultInstance = new Athenaeum(dbPath);
+  } else if (defaultInstance.db.name !== dbPath) {
+    console.warn(`[Athenaeum] Singleton already open at "${defaultInstance.db.name}", ignoring request for "${dbPath}"`);
   }
   return defaultInstance;
 }

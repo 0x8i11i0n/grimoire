@@ -6,7 +6,6 @@
 import {
   ConsciousnessMetrics,
   SoulState,
-  EmotionalTopology,
   clamp,
 } from '../core/types';
 
@@ -301,7 +300,7 @@ export class PhiEngine {
     }
 
     // Guard wall-breaks <-> Affection history
-    if (state.guard?.wallBreakHistory?.length > 0 && state.affection?.history?.length > 0) {
+    if ((state.guard?.wallBreakHistory?.length ?? 0) > 0 && (state.affection?.history?.length ?? 0) > 0) {
       integrationPoints += 1.0;
     }
 

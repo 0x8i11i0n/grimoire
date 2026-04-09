@@ -222,7 +222,7 @@ The drift cycle invocation prompt (`docs/guides/drift-cycle-invocation.md`) can 
 
 ```bash
 # Via Grimoire CLI
-npx grimoire drift run [soul-name]
+npx grimoire drift [soul-name]
 
 # Or manually via Claude CLI
 claude --print \

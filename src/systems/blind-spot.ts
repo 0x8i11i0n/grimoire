@@ -297,8 +297,10 @@ export class BlindSpotEngine {
       if (archetype === 'default') continue;
 
       if (
-        sourceLower.includes(archetype) ||
-        archetype.includes(sourceLower)
+        sourceLower.length > 0 && (
+          sourceLower.includes(archetype) ||
+          archetype.includes(sourceLower)
+        )
       ) {
         templates = spots;
         break;

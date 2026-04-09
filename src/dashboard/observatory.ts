@@ -127,8 +127,11 @@ export class Observatory {
 
   private async getSoulState(name: string): Promise<object> {
     const fs = await import('fs');
+    // Sanitize name to prevent path traversal
+    const safeName = name.toLowerCase().replace(/[^a-z0-9_\-]/g, '');
+    if (!safeName) return { error: 'Invalid soul name' };
     const soulsDir = path.join(this.config.grimoireRoot, 'Grimhub', 'souls');
-    const soulDir = path.join(soulsDir, name.toLowerCase().replace(/\s+/g, ''));
+    const soulDir = path.join(soulsDir, safeName);
     const stateFile = this.findStateJson(soulDir);
     if (!stateFile) return { error: 'Soul not found' };
     const raw = fs.readFileSync(stateFile, 'utf-8');
@@ -244,7 +247,7 @@ function renderGrid() {
   grid.innerHTML = souls.map(s => {
     const tierClass = 'badge-' + (s.tier || 'low').toLowerCase();
     const lastActive = s.lastSession ? timeSince(s.lastSession) : 'never';
-    return '<div class="card" onclick="selectSoul(\\'' + s.directory + '\\')">' +
+    return '<div class="card" onclick="selectSoul(\\'' + esc(s.directory) + '\\')">' +
       '<div class="card-name">' + esc(s.name) + '</div>' +
       '<div class="card-meta">' +
       '<span class="badge ' + tierClass + '">' + (s.tier || 'LOW') + '</span>' +
@@ -349,7 +352,7 @@ function metric(label, val) {
   return '<div class="metric"><div class="metric-label">' + label + '</div><div class="metric-value">' + (val != null ? (val*100).toFixed(0)+'%' : 'N/A') + '</div></div>';
 }
 function fmt(n) { return n != null ? Number(n).toFixed(2) : 'N/A'; }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function timeSince(ts) {
   var s = Math.floor((Date.now()-ts)/1000);
   if(s<60) return s+'s ago'; if(s<3600) return Math.floor(s/60)+'m ago';

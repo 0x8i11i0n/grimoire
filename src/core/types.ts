@@ -570,7 +570,7 @@ export class EventBus {
   emit(event: GrimoireEvent, data?: unknown): void {
     const handlers = this.handlers.get(event) || [];
     for (const handler of handlers) {
-      try { handler(data); } catch (_) { /* swallow */ }
+      try { handler(data); } catch (err) { console.error(`[EventBus] Error in handler for "${event}":`, err); }
     }
   }
 }

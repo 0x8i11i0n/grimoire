@@ -165,9 +165,6 @@ Validate a soul against the quality gate and publish to the local registry.
 npx grimoire registry publish sungjinwoo
 ```
 
-### `registry install <name>`
-Install a soul from the registry.
-
 ---
 
 ## Examples
