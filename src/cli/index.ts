@@ -124,22 +124,28 @@ program
     }
 
     console.log(`\n  Found ${souls.length} soul(s):\n`);
-    console.log('  %-20s %-8s %-6s %-8s %-6s %s', 'NAME', 'TIER', 'AFF', 'SESSIONS', 'DRIFT', 'REFLECTION');
+    console.log(
+      '  ' + 'NAME'.padEnd(20) + ' ' + 'TIER'.padEnd(8) + ' ' +
+      'AFF'.padEnd(6) + ' ' + 'SESSIONS'.padEnd(8) + ' ' +
+      'DRIFT'.padEnd(6) + ' ' + 'REFLECTION'
+    );
     console.log('  ' + '-'.repeat(70));
 
-    for (const soulName of souls) {
+    for (const soulDir of souls) {
       try {
-        const soulDir = await loader.findSoulDir(soulName, root);
-        if (!soulDir) continue;
         const files = await loader.loadSoul(soulDir);
         const s = files.state;
-        const name = s.identity?.name || soulName;
+        const name = (s.identity?.name || path.basename(soulDir)).slice(0, 20);
         const tier = s.affection?.tier || 'LOW';
-        const aff = Math.round(s.affection?.value || 0);
-        const sessions = s.totalSessions || 0;
-        const drift = s.drift?.cycleCount || 0;
+        const aff = String(Math.round(s.affection?.value || 0));
+        const sessions = String(s.totalSessions || 0);
+        const drift = String(s.drift?.cycleCount || 0);
         const depth = s.innerLife?.reflectionDepth || 'SURFACE';
-        console.log(`  %-20s %-8s %-6s %-8s %-6s %s`, name.slice(0, 20), tier, aff, sessions, drift, depth);
+        console.log(
+          '  ' + name.padEnd(20) + ' ' + tier.padEnd(8) + ' ' +
+          aff.padEnd(6) + ' ' + sessions.padEnd(8) + ' ' +
+          drift.padEnd(6) + ' ' + depth
+        );
       } catch { /* skip malformed */ }
     }
   });

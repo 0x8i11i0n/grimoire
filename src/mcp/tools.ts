@@ -62,9 +62,12 @@ function athenaeum(): Athenaeum {
 }
 
 async function resolveSoulDir(name: string): Promise<string> {
+  // Sanitize name to prevent path traversal
+  const sanitized = name.replace(/[^a-zA-Z0-9_\- ]/g, '');
+  if (!sanitized) throw new Error('Invalid soul name');
   const root = findGrimoireRoot();
-  const dir = await loader().findSoulDir(name, root);
-  if (!dir) throw new Error(`Soul "${name}" not found`);
+  const dir = await loader().findSoulDir(sanitized, root);
+  if (!dir) throw new Error(`Soul "${sanitized}" not found`);
   return dir;
 }
 

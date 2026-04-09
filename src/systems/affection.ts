@@ -9,7 +9,6 @@ import {
   AffectionForces,
   AffectionEvent,
   clamp,
-  generateId,
 } from '../core/types';
 
 /**

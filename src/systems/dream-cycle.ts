@@ -17,7 +17,6 @@ import {
   KnowledgeEdge,
   generateId,
   clamp,
-  daysSince,
 } from '../core/types';
 
 // --- Dependency Interfaces ---
@@ -161,20 +160,23 @@ export class DreamCycle {
   /**
    * Set up a recurring dream cycle on the specified interval.
    * If a schedule already exists for this soul, it is replaced.
+   *
+   * @param getState — callback that returns the current SoulState for this soul.
+   *   The dream cycle needs a fresh state snapshot each run.
    */
-  scheduleRecurring(soulId: string, intervalHours: number): void {
+  scheduleRecurring(soulId: string, intervalHours: number, getState: () => SoulState | null): void {
     // Clear any existing schedule first
     this.stopSchedule(soulId);
 
     const intervalMs = Math.max(intervalHours, 0.1) * 60 * 60 * 1000;
     const handle = setInterval(() => {
       try {
-        // The recurring cycle needs a current state snapshot.
-        // In production this would be fetched from the soul store;
-        // here we run with a minimal placeholder to avoid tight coupling.
-        // Consumers should wrap this with their own state-fetch logic.
-      } catch (_) {
-        // Swallow — dream cycles are non-critical background work
+        const state = getState();
+        if (state) {
+          this.run(soulId, state);
+        }
+      } catch (err) {
+        console.error(`[DreamCycle] Recurring cycle failed for ${soulId}:`, err);
       }
     }, intervalMs);
 

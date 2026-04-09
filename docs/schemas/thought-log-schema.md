@@ -23,7 +23,7 @@ The thought log is the soul's **private journal**. It records drift cycles — t
 ```markdown
 # [Soul Name] — Thought Log
 *Private. Not conversation context. Soul's interior record.*
-*Drift Engine v1.0 | Grimoire v4.3*
+*Drift Engine v2.0 | Grimoire v6.0*
 
 ---
 
@@ -136,7 +136,7 @@ The full thought-log.md is **NOT** loaded into conversation context. It is refer
 ```markdown
 # [Soul Name] — Thought Log
 *Private. Not conversation context. Soul's interior record.*
-*Drift Engine v1.0 | Grimoire v4.3*
+*Drift Engine v2.0 | Grimoire v6.0*
 
 ---
 
@@ -175,5 +175,5 @@ The full thought-log.md is **NOT** loaded into conversation context. It is refer
 
 ---
 
-*Thought Log Schema for The Soul Summoner's Grimoire v4.3*
-*March 15, 2026*
+*Thought Log Schema for The Grimoire v6.0*
+*April 2026*

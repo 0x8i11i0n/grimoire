@@ -93,12 +93,14 @@ export class AnchorWatch {
    *
    * Returns a DriftScore with per-anchor breakdown.
    */
-  analyze(responseText: string, anchors: IdentityAnchor[]): DriftScore {
+  analyze(responseText: string, anchors?: IdentityAnchor[]): DriftScore {
+    const effectiveAnchors = anchors ?? this.anchors;
+
     if (!responseText || responseText.trim().length === 0) {
       return this.emptyScore('Empty response — no analysis possible');
     }
 
-    if (anchors.length === 0) {
+    if (effectiveAnchors.length === 0) {
       return this.emptyScore('No anchors to analyze against');
     }
 
@@ -108,7 +110,7 @@ export class AnchorWatch {
     let weightedDriftSum = 0;
     let totalWeight = 0;
 
-    for (const anchor of anchors) {
+    for (const anchor of effectiveAnchors) {
       const anchorDrift = this.analyzeAnchor(anchor, responseLower, responseWords);
       perAnchor[anchor.trait] = anchorDrift;
 

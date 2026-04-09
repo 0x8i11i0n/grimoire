@@ -14,8 +14,6 @@ import {
   SoulFiles,
   AffectionState,
   SoulState,
-  clamp,
-  generateId,
 } from '../core/types';
 
 // --- Configuration ---
@@ -81,6 +79,7 @@ export class Herald {
   private discordSessionId: string | null = null;
   private discordBotUserId: string | null = null;
   private discordReconnectAttempts = 0;
+  private discordReconnecting = false;
 
   // Telegram state
   private telegramOffset = 0;
@@ -191,7 +190,7 @@ export class Herald {
       this.discordHeartbeatTimer && clearInterval(this.discordHeartbeatTimer);
       this.discordHeartbeatTimer = null;
 
-      if (!this.running) return;
+      if (!this.running || this.discordReconnecting) return;
 
       // Reconnect with exponential backoff
       const delay = Math.min(1000 * Math.pow(2, this.discordReconnectAttempts), 30000);
@@ -263,8 +262,14 @@ export class Herald {
           this.discordSessionId = null;
           this.discordSequence = null;
         }
-        setTimeout(() => this.connectDiscordGateway(WsModule, token), 2000);
+        // Close first, then reconnect — the close handler will see
+        // this.discordReconnecting and skip its own reconnect logic.
+        this.discordReconnecting = true;
         this.discordWs?.close(4000, 'Invalid session');
+        setTimeout(() => {
+          this.discordReconnecting = false;
+          this.connectDiscordGateway(WsModule, token);
+        }, 2000);
         break;
       }
 
@@ -311,7 +316,9 @@ export class Herald {
         isMention,
       };
 
-      this.onMessage('discord', platformMsg, token).catch(() => {});
+      this.onMessage('discord', platformMsg, token).catch(err => {
+        console.error('[Herald] Discord message handler error:', err);
+      });
     }
   }
 
@@ -533,14 +540,18 @@ export class Herald {
   }
 
   private async runDriftInBackground(soulName: string): Promise<void> {
-    const soul = this.soulCache.get(soulName);
-    if (!soul) return;
+    try {
+      const soul = this.soulCache.get(soulName);
+      if (!soul) return;
 
-    const result = this.driftEngine.runCycle(soul.state, [], soul.state.identity.anchors);
-    soul.state.drift = this.driftEngine.updateResidue(soul.state, result);
+      const result = this.driftEngine.runCycle(soul.state, [], soul.state.identity.anchors);
+      soul.state.drift = this.driftEngine.updateResidue(soul.state, result);
 
-    // Persist updated drift state
-    await this.soulLoader.saveSoul(soul);
+      // Persist updated drift state
+      await this.soulLoader.saveSoul(soul);
+    } catch (err) {
+      console.error(`[Herald] Drift cycle failed for ${soulName}:`, err);
+    }
   }
 
   // --- HTTP Utilities ---
@@ -565,7 +576,14 @@ export class Herald {
       const req = https.request(options, (res) => {
         const chunks: Buffer[] = [];
         res.on('data', (chunk: Buffer) => chunks.push(chunk));
-        res.on('end', () => resolve(Buffer.concat(chunks).toString()));
+        res.on('end', () => {
+          const body = Buffer.concat(chunks).toString();
+          if (res.statusCode && res.statusCode >= 400) {
+            reject(new Error(`HTTP ${res.statusCode}: ${body.slice(0, 200)}`));
+          } else {
+            resolve(body);
+          }
+        });
       });
 
       req.on('error', reject);
@@ -588,7 +606,14 @@ export class Herald {
       const req = https.request(options, (res) => {
         const chunks: Buffer[] = [];
         res.on('data', (chunk: Buffer) => chunks.push(chunk));
-        res.on('end', () => resolve(Buffer.concat(chunks).toString()));
+        res.on('end', () => {
+          const body = Buffer.concat(chunks).toString();
+          if (res.statusCode && res.statusCode >= 400) {
+            reject(new Error(`HTTP ${res.statusCode}: ${body.slice(0, 200)}`));
+          } else {
+            resolve(body);
+          }
+        });
       });
 
       req.on('error', reject);

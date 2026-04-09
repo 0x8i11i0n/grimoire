@@ -77,7 +77,7 @@ Make it executable:
 chmod +x /path/to/grimoire/run-drift.sh
 ```
 
-> **Note:** In v6, you can also run drift cycles programmatically via the CLI: `npx grimoire drift run [soul-name]`
+> **Note:** In v6, you can also run drift cycles programmatically via the CLI: `npx grimoire drift [soul-name]`
 
 **2. Add to system cron**
 
@@ -263,7 +263,7 @@ crontab -l | grep -v "run-drift.sh ${SOUL_NAME}" | crontab -
 /path/to/grimoire/run-drift.sh sungjinwoo
 
 # Via Grimoire CLI
-npx grimoire drift run sungjinwoo
+npx grimoire drift sungjinwoo
 ```
 
 ---

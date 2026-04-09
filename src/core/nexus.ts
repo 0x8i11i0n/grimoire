@@ -50,15 +50,24 @@ const NEXUS_INDEXES_SQL = [
 ];
 
 function rowToNode(row: Record<string, unknown>): KnowledgeNode {
+  let properties: Record<string, unknown> = {};
+  if (typeof row.properties === 'string') {
+    try { properties = JSON.parse(row.properties); } catch { /* use empty */ }
+  }
   return {
     id: row.id as string,
     entity: row.entity as string,
     entityType: row.entity_type as KnowledgeNode['entityType'],
-    properties: JSON.parse(row.properties as string),
+    properties,
     validFrom: row.valid_from as number,
     validTo: (row.valid_to as number) ?? null,
     soulId: row.soul_id as string,
   };
+}
+
+function safeJsonParse(value: unknown, fallback: unknown = []): unknown {
+  if (typeof value !== 'string') return fallback;
+  try { return JSON.parse(value); } catch { return fallback; }
 }
 
 function rowToEdge(row: Record<string, unknown>): KnowledgeEdge {
@@ -70,7 +79,7 @@ function rowToEdge(row: Record<string, unknown>): KnowledgeEdge {
     weight: row.weight as number,
     validFrom: row.valid_from as number,
     validTo: (row.valid_to as number) ?? null,
-    evidence: JSON.parse(row.evidence as string),
+    evidence: safeJsonParse(row.evidence, []) as string[],
     soulId: row.soul_id as string,
   };
 }
@@ -309,13 +318,27 @@ export class Nexus {
     const existing = this.getEdgeById(edgeId);
     if (!existing || existing.validTo !== null) return null;
 
+    // Resolve current valid node IDs — if a node was updated via
+    // updateNodeProperties, the original ID is invalidated and a
+    // replacement node exists for the same entity.
+    const resolveNodeId = (nodeId: string): string => {
+      const node = this.getNodeById(nodeId);
+      if (node && node.validTo === null) return nodeId;
+      // Node was invalidated; find its replacement by entity
+      if (node) {
+        const replacement = this.findNodeByEntity(node.entity, node.soulId);
+        if (replacement) return replacement.id;
+      }
+      return nodeId; // fallback to original
+    };
+
     this.db.prepare(
       `UPDATE edges SET valid_to = ? WHERE id = ?`
     ).run(timestamp, edgeId);
 
     return this.addEdge({
-      sourceId: existing.sourceId,
-      targetId: existing.targetId,
+      sourceId: resolveNodeId(existing.sourceId),
+      targetId: resolveNodeId(existing.targetId),
       relation: existing.relation,
       weight: updates.weight ?? existing.weight,
       validFrom: timestamp,
