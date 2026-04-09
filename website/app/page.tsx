@@ -13,15 +13,10 @@ export default function Home() {
       <Navigation />
       <main>
         <Hero />
-        <div className="section-divider" />
         <SystemsShowcase />
-        <div className="section-divider" />
         <Philosophy />
-        <div className="section-divider" />
         <ComparisonTable />
-        <div className="section-divider" />
         <QuickStart />
-        <div className="section-divider" />
         <Ecosystem />
       </main>
       <Footer />

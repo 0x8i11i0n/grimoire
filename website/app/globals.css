@@ -25,20 +25,12 @@
     @apply max-w-6xl mx-auto px-6 sm:px-8 lg:px-12;
   }
 
-  .section-divider {
-    @apply w-full h-px bg-gradient-to-r from-transparent via-grimoire-border-light to-transparent my-0;
-  }
-
-  .gold-text {
-    @apply text-grimoire-gold;
-  }
-
   .gradient-text {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-grimoire-gold via-grimoire-gold-bright to-grimoire-gold;
   }
 
   .card-base {
-    @apply bg-grimoire-elevated border border-grimoire-border rounded-xl;
+    @apply bg-grimoire-elevated border border-grimoire-border rounded-2xl;
   }
 
   .glow-border {
@@ -46,37 +38,41 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg
            bg-grimoire-gold/10 border border-grimoire-gold/40
            text-grimoire-gold font-mono text-sm font-medium
            hover:bg-grimoire-gold/20 hover:border-grimoire-gold/60
            hover:shadow-[0_0_20px_rgba(196,162,101,0.15)]
-           transition-all duration-300 cursor-pointer;
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-grimoire-gold/50 focus-visible:ring-offset-2 focus-visible:ring-offset-grimoire-bg
+           active:scale-[0.98]
+           transition-all duration-200 cursor-pointer;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center gap-2 px-6 py-3 rounded-lg
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg
            bg-grimoire-purple/10 border border-grimoire-purple/30
            text-grimoire-purple-bright font-sans text-sm font-medium
            hover:bg-grimoire-purple/20 hover:border-grimoire-purple/50
-           transition-all duration-300 cursor-pointer;
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-grimoire-purple/50 focus-visible:ring-offset-2 focus-visible:ring-offset-grimoire-bg
+           active:scale-[0.98]
+           transition-all duration-200 cursor-pointer;
   }
 
   /* Radar chart styles */
   .radar-axis {
-    stroke: theme('colors.grimoire.border-light');
+    stroke: #3a3245;
     stroke-width: 1;
   }
 
   .radar-fill {
-    fill: theme('colors.grimoire.purple');
+    fill: #7c5cbf;
     fill-opacity: 0.15;
-    stroke: theme('colors.grimoire.purple-bright');
+    stroke: #a87ef0;
     stroke-width: 2;
   }
 
   .radar-dot {
-    fill: theme('colors.grimoire.gold');
+    fill: #c4a265;
   }
 }
 
@@ -86,11 +82,15 @@
   }
 }
 
-/* Scroll-triggered animation helper */
+/* ── Scroll-triggered animations ─────────────────────────────────── */
+
+/* Fade up (default) */
 .animate-on-scroll {
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 
 .animate-on-scroll.is-visible {
@@ -98,7 +98,62 @@
   transform: translateY(0);
 }
 
-/* Particle canvas overlay */
+/* Fade in (no translation) */
+.animate-on-scroll-fade {
+  opacity: 0;
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity;
+}
+
+.animate-on-scroll-fade.is-visible {
+  opacity: 1;
+}
+
+/* Slide from left */
+.animate-on-scroll-left {
+  opacity: 0;
+  transform: translateX(-32px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.animate-on-scroll-left.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Slide from right */
+.animate-on-scroll-right {
+  opacity: 0;
+  transform: translateX(32px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.animate-on-scroll-right.is-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Stagger children: apply to parent, children get delayed */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.stagger-children.is-visible > *:nth-child(1) { transition-delay: 0ms; opacity: 1; transform: translateY(0); }
+.stagger-children.is-visible > *:nth-child(2) { transition-delay: 80ms; opacity: 1; transform: translateY(0); }
+.stagger-children.is-visible > *:nth-child(3) { transition-delay: 160ms; opacity: 1; transform: translateY(0); }
+.stagger-children.is-visible > *:nth-child(4) { transition-delay: 240ms; opacity: 1; transform: translateY(0); }
+.stagger-children.is-visible > *:nth-child(5) { transition-delay: 320ms; opacity: 1; transform: translateY(0); }
+.stagger-children.is-visible > *:nth-child(6) { transition-delay: 400ms; opacity: 1; transform: translateY(0); }
+
+/* ── Particle canvas ─────────────────────────────────────────────── */
 .particle-canvas {
   position: absolute;
   inset: 0;
@@ -106,7 +161,7 @@
   pointer-events: none;
 }
 
-/* Custom scrollbar */
+/* ── Custom scrollbar ────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -124,7 +179,7 @@
   background: #3a3245;
 }
 
-/* Code block styling */
+/* ── Code styling ────────────────────────────────────────────────── */
 code {
   @apply font-mono text-grimoire-gold-bright bg-grimoire-surface px-1.5 py-0.5 rounded text-sm;
 }
