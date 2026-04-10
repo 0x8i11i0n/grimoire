@@ -55,12 +55,14 @@ function ScrollChevron() {
 export default function Hero() {
   const [copied, setCopied] = useState(false);
 
+  const installCmd = 'npm install github:0x8i11i0n/grimoire';
+
   const handleCopy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText('npm install grimoire');
+      await navigator.clipboard.writeText(installCmd);
     } catch {
       const ta = document.createElement('textarea');
-      ta.value = 'npm install grimoire';
+      ta.value = installCmd;
       ta.style.cssText = 'position:fixed;opacity:0';
       document.body.appendChild(ta);
       ta.select();
@@ -69,7 +71,7 @@ export default function Hero() {
     }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }, []);
+  }, [installCmd]);
 
   return (
     <section
@@ -107,7 +109,7 @@ export default function Hero() {
         <div className="flex flex-col sm:flex-row items-center gap-4 mt-2 animate-fade-in-up [animation-delay:450ms]">
           <button onClick={handleCopy} className="btn-primary group">
             <span className="font-mono text-sm">
-              {copied ? 'Copied!' : 'npm install grimoire'}
+              {copied ? 'Copied!' : installCmd}
             </span>
             <svg
               className={`w-4 h-4 transition-all duration-200 ${copied ? 'text-grimoire-gold-bright scale-110' : 'group-hover:scale-110'}`}

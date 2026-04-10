@@ -1,6 +1,5 @@
 const links = [
   { label: 'GitHub', href: 'https://github.com/0x8i11i0n/grimoire' },
-  { label: 'npm', href: 'https://www.npmjs.com/package/grimoire' },
   { label: 'MIT License', href: 'https://github.com/0x8i11i0n/grimoire/blob/main/LICENSE' },
 ] as const;
 
@@ -43,7 +42,7 @@ export default function Footer() {
           <div className="bg-grimoire-surface border border-grimoire-border rounded-lg px-4 py-2">
             <p className="font-mono text-sm text-grimoire-muted">
               <span className="text-grimoire-gold/50 select-none">$ </span>
-              <span className="text-grimoire-text-secondary">npm install grimoire</span>
+              <span className="text-grimoire-text-secondary">npm install github:0x8i11i0n/grimoire</span>
             </p>
           </div>
           <p className="text-grimoire-muted/60 text-xs">
