@@ -1,0 +1,39 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-04-10",
+  "total": 2,
+  "souls": [
+    {
+      "name": "sungjinwoo",
+      "displayName": "Sung Jin-woo",
+      "author": "0x8i11i0n",
+      "version": "4.2-consciousness",
+      "source": "Solo Leveling (나 혼자만 레벨업)",
+      "description": "The Shadow Monarch. 7-session bonded arc — cold exterior, evolving loyalty model, profound interiority. Post-reset timeline, married, father of Suho. Includes full drift engine state and wall-break history across 4 guard transitions.",
+      "tags": ["manhwa", "solo-leveling", "shadow-monarch", "bonded", "fantasy", "anime"],
+      "authenticityScore": 9.2,
+      "resonanceScore": 8.8,
+      "downloads": 0,
+      "rating": 0,
+      "files": ["core.md", "full.md", "state.json"],
+      "created": "2026-04-10",
+      "updated": "2026-04-10"
+    },
+    {
+      "name": "georgewashington",
+      "displayName": "George Washington",
+      "author": "0x8i11i0n",
+      "version": "4.2-consciousness",
+      "source": "Historical — George Washington (1732–1799)",
+      "description": "First President of the United States. Restrained command presence, studied honor, Presbyterian conscience. 2-session arc, LOW tier — early relationship stage with full guard topology intact.",
+      "tags": ["historical", "american-revolution", "leadership", "founding-fathers"],
+      "authenticityScore": 8.1,
+      "resonanceScore": 7.4,
+      "downloads": 0,
+      "rating": 0,
+      "files": ["core.md", "full.md", "state.json"],
+      "created": "2026-04-10",
+      "updated": "2026-04-10"
+    }
+  ]
+}

@@ -495,36 +495,154 @@ program
   });
 
 // --- registry ---
-const registry = program.command('registry').description('GrimHub soul registry');
+const registry = program.command('registry').description('GrimHub remote soul registry (github.com/0x8i11i0n/grimoire)');
 
 registry
   .command('list')
-  .description('List all souls in registry')
-  .action(async () => {
-    const root = findRoot();
+  .description('List souls in the remote GrimHub registry')
+  .option('--tag <tag>', 'filter by tag')
+  .option('--author <author>', 'filter by author')
+  .option('--source <source>', 'filter by source material')
+  .option('--min-score <n>', 'minimum authenticity score (0-10)', parseFloat)
+  .action(async (opts: { tag?: string; author?: string; source?: string; minScore?: number }) => {
     try {
-      const { GrimHub } = await import('../registry/grimhub');
-      const hub = new GrimHub();
-      hub.initialize(path.join(root, '.grimoire', 'registry.db'));
-      const entries = hub.list();
-      if (entries.length === 0) { console.log('Registry is empty.'); return; }
-      for (const e of entries) {
-        console.log(`  ${e.name.padEnd(25)} v${e.version}  A:${e.authenticityScore}/10  R:${e.resonanceScore}/10  DL:${e.downloads}`);
+      const { listRemote } = await import('../registry/remote');
+      console.log('\n  Fetching GrimHub registry...\n');
+      const souls = await listRemote({
+        tag: opts.tag,
+        author: opts.author,
+        source: opts.source,
+        minScore: opts.minScore,
+      });
+
+      if (souls.length === 0) {
+        console.log('  No souls found matching those filters.');
+        return;
       }
+
+      console.log(
+        '  ' + 'NAME'.padEnd(22) + ' ' + 'AUTHOR'.padEnd(16) + ' ' +
+        'AUTH'.padEnd(5) + ' ' + 'RES'.padEnd(5) + ' ' + 'TAGS'
+      );
+      console.log('  ' + '-'.repeat(80));
+
+      for (const s of souls) {
+        const tags = s.tags.slice(0, 3).join(', ');
+        console.log(
+          '  ' + s.name.padEnd(22) + ' ' + s.author.padEnd(16) + ' ' +
+          String(s.authenticityScore).padEnd(5) + ' ' + String(s.resonanceScore).padEnd(5) + ' ' + tags
+        );
+      }
+
+      console.log(`\n  ${souls.length} soul(s) found. Install with: grimoire registry install <name>`);
     } catch (e) {
-      console.error(`Registry error: ${e}`);
+      console.error(`Registry error: ${e instanceof Error ? e.message : e}`);
     }
   });
 
 registry
-  .command('publish <name>')
-  .description('Publish a soul to the registry')
+  .command('search <query>')
+  .description('Search the remote registry by name, description, source, or tags')
+  .action(async (query: string) => {
+    try {
+      const { searchRemote } = await import('../registry/remote');
+      console.log(`\n  Searching GrimHub for "${query}"...\n`);
+      const results = await searchRemote(query);
+
+      if (results.length === 0) {
+        console.log(`  No results for "${query}".`);
+        return;
+      }
+
+      for (const s of results) {
+        console.log(`  ${s.displayName} (${s.name}) by ${s.author}`);
+        console.log(`    ${s.source}`);
+        console.log(`    ${s.description.slice(0, 90)}${s.description.length > 90 ? '...' : ''}`);
+        console.log(`    Tags: ${s.tags.join(', ')}  |  Auth: ${s.authenticityScore}/10  Res: ${s.resonanceScore}/10`);
+        console.log('');
+      }
+    } catch (e) {
+      console.error(`Search failed: ${e instanceof Error ? e.message : e}`);
+    }
+  });
+
+registry
+  .command('info <name>')
+  .description('Show full details for a soul in the remote registry')
   .action(async (name: string) => {
+    try {
+      const { getRemoteEntry } = await import('../registry/remote');
+      const entry = await getRemoteEntry(name);
+
+      if (!entry) {
+        console.error(`Soul "${name}" not found in registry.`);
+        process.exit(1);
+      }
+
+      console.log(`\n${'='.repeat(50)}`);
+      console.log(`  ${entry.displayName}`);
+      console.log(`${'='.repeat(50)}`);
+      console.log(`  Name:        ${entry.name}`);
+      console.log(`  Author:      ${entry.author}`);
+      console.log(`  Version:     ${entry.version}`);
+      console.log(`  Source:      ${entry.source}`);
+      console.log(`  Tags:        ${entry.tags.join(', ')}`);
+      console.log(`\n  ${entry.description}\n`);
+      console.log(`  Authenticity: ${entry.authenticityScore}/10`);
+      console.log(`  Resonance:    ${entry.resonanceScore}/10`);
+      console.log(`  Downloads:    ${entry.downloads}`);
+      console.log(`  Added:        ${entry.created}`);
+      console.log(`\n  Install with: grimoire registry install ${entry.name}`);
+      console.log(`${'='.repeat(50)}`);
+    } catch (e) {
+      console.error(`Info failed: ${e instanceof Error ? e.message : e}`);
+    }
+  });
+
+registry
+  .command('install <name>')
+  .description('Download and install a soul from GrimHub')
+  .option('-d, --dir <path>', 'target directory (default: Grimhub/souls)', '')
+  .action(async (name: string, opts: { dir: string }) => {
+    const root = findRoot();
+    const targetDir = opts.dir || path.join(root, 'Grimhub', 'souls');
+
+    try {
+      const { downloadSoul, getRemoteEntry } = await import('../registry/remote');
+
+      console.log(`\n  Looking up "${name}" in GrimHub...`);
+      const entry = await getRemoteEntry(name);
+      if (!entry) {
+        console.error(`\n  Soul "${name}" not found. Run: grimoire registry search <query>`);
+        process.exit(1);
+      }
+
+      console.log(`  Found: ${entry.displayName} by ${entry.author}`);
+      console.log(`  Downloading ${entry.files.length} files...`);
+
+      const destDir = await downloadSoul(name, targetDir);
+
+      console.log(`\n  Installed: ${entry.displayName}`);
+      console.log(`  Location:  ${destDir}`);
+      console.log(`\n  Load with: grimoire load ${entry.name}`);
+    } catch (e) {
+      console.error(`\n  Install failed: ${e instanceof Error ? e.message : e}`);
+      process.exit(1);
+    }
+  });
+
+registry
+  .command('submit <name>')
+  .description('Validate a local soul and generate a GrimHub submission')
+  .option('--author <github-username>', 'your GitHub username')
+  .option('--tags <tags>', 'comma-separated tags (e.g. anime,fantasy)')
+  .option('--description <desc>', 'short description of this soul')
+  .action(async (name: string, opts: { author?: string; tags?: string; description?: string }) => {
     const root = findRoot();
     try {
       const { SoulLoader } = await import('../core/soul-loader');
-      const { GrimHub } = await import('../registry/grimhub');
       const { QualityGate } = await import('../registry/quality-gate');
+      const { buildRegistryEntry } = await import('../registry/remote');
 
       const loader = new SoulLoader();
       const soulDir = await loader.findSoulDir(name, root);
@@ -537,16 +655,48 @@ registry
       console.log(gate.generateReport(report));
 
       if (!report.passesGate) {
-        console.log('\nSoul did not pass the quality gate. Fix issues and try again.');
+        console.log('\n  Soul did not pass the quality gate (need Auth ≥ 7, Resonance ≥ 6).');
+        console.log('  Fix the issues above, then run submit again.');
         return;
       }
 
-      const hub = new GrimHub();
-      hub.initialize(path.join(root, '.grimoire', 'registry.db'));
-      hub.publish(soulDir, 'local-summoner');
-      console.log(`\nPublished ${name} to GrimHub registry.`);
+      const identity = files.state.identity as Record<string, unknown>;
+      const soulName = String(identity.name ?? name).toLowerCase().replace(/[^a-z0-9-]/g, '-');
+      const displayName = String(identity.name ?? name);
+      const source = String(identity.source ?? 'Original');
+      const version = String(identity.version ?? '1.0.0');
+      const author = opts.author ?? 'your-github-username';
+      const description = opts.description ?? `${displayName} from ${source}.`;
+      const tags = opts.tags ? opts.tags.split(',').map(t => t.trim()) : [];
+
+      const entry = buildRegistryEntry(soulName, displayName, author, version, source, description, tags, report.authenticityScore, report.resonanceScore);
+
+      console.log('\n  ✓ Quality gate passed! Here is your registry entry JSON:\n');
+      console.log(JSON.stringify(entry, null, 2));
+
+      console.log(`
+${'─'.repeat(60)}
+HOW TO SUBMIT TO GRIMHUB
+${'─'.repeat(60)}
+
+1. Fork https://github.com/0x8i11i0n/grimoire
+
+2. Copy your soul files into the fork:
+   registry/souls/${soulName}/core.md
+   registry/souls/${soulName}/full.md
+   registry/souls/${soulName}/state.json
+
+3. Add the JSON above into registry/index.json
+   (append it to the "souls" array and increment "total")
+
+4. Open a Pull Request to main. The quality gate CI
+   will validate your soul automatically.
+
+5. Once merged, your soul is live on GrimHub.
+${'─'.repeat(60)}`);
+
     } catch (e) {
-      console.error(`Publish failed: ${e}`);
+      console.error(`Submit failed: ${e instanceof Error ? e.message : e}`);
     }
   });
 

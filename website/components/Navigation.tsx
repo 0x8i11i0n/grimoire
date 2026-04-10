@@ -6,6 +6,7 @@ const navLinks = [
   { label: 'Systems', href: '#systems' },
   { label: 'Compare', href: '#compare' },
   { label: 'Get Started', href: '#quickstart' },
+  { label: 'Registry', href: '/grimoire/registry' },
 ];
 
 function GrimoireLogo() {
@@ -50,7 +51,7 @@ export default function Navigation() {
 
   // Track active section
   useEffect(() => {
-    const sectionIds = navLinks.map((l) => l.href.slice(1));
+    const sectionIds = navLinks.filter((l) => l.href.startsWith('#')).map((l) => l.href.slice(1));
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -80,6 +81,8 @@ export default function Navigation() {
       if (href.startsWith('#')) {
         e.preventDefault();
         document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+        setMobileOpen(false);
+      } else {
         setMobileOpen(false);
       }
     },
