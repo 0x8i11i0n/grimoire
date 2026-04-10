@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { usePathname } from 'next/navigation';
 
 const navLinks = [
-  { label: 'Systems', href: '#systems' },
-  { label: 'Compare', href: '#compare' },
-  { label: 'Get Started', href: '#quickstart' },
-  { label: 'Registry', href: '/grimoire/registry' },
+  { label: 'Systems', href: '#systems', section: 'systems' },
+  { label: 'Compare', href: '#compare', section: 'compare' },
+  { label: 'Get Started', href: '#quickstart', section: 'quickstart' },
+  { label: 'GrimHub', href: '/grimoire/registry', section: null as null },
 ];
 
 function GrimoireLogo() {
@@ -38,6 +39,9 @@ function HamburgerIcon({ open }: { open: boolean }) {
 }
 
 export default function Navigation() {
+  const pathname = usePathname();
+  const isHome = pathname === '/grimoire' || pathname === '/grimoire/' || pathname === '/';
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
@@ -49,26 +53,24 @@ export default function Navigation() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Track active section
+  // Track active section (only meaningful on the home page)
   useEffect(() => {
-    const sectionIds = navLinks.filter((l) => l.href.startsWith('#')).map((l) => l.href.slice(1));
+    if (!isHome) return;
+    const sectionIds = navLinks.filter((l) => l.section).map((l) => l.section as string);
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
         }
       },
       { rootMargin: '-40% 0px -55% 0px' },
     );
-
     for (const id of sectionIds) {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     }
     return () => observer.disconnect();
-  }, []);
+  }, [isHome]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -76,17 +78,37 @@ export default function Navigation() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
+  // Resolve the href for a nav link based on current page
+  const resolveHref = useCallback(
+    (href: string) => {
+      if (!href.startsWith('#')) return href;
+      // On home page use hash directly; from other pages prefix with home path
+      return isHome ? href : `/grimoire/${href}`;
+    },
+    [isHome],
+  );
+
   const handleNavClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-      if (href.startsWith('#')) {
+      setMobileOpen(false);
+      if (href.startsWith('#') && isHome) {
         e.preventDefault();
         document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
-        setMobileOpen(false);
-      } else {
-        setMobileOpen(false);
       }
+      // For page links or cross-page hash links: let the browser navigate normally
     },
-    [],
+    [isHome],
+  );
+
+  const isLinkActive = useCallback(
+    (link: typeof navLinks[number]) => {
+      if (link.section === null) {
+        // Page link — active when pathname matches
+        return pathname.startsWith(link.href);
+      }
+      return activeSection === link.section;
+    },
+    [activeSection, pathname],
   );
 
   return (
@@ -99,12 +121,14 @@ export default function Navigation() {
         }`}
       >
         <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 flex items-center justify-between h-16">
-          {/* Logo */}
+          {/* Logo — always navigates home; smooth-scrolls if already on home */}
           <a
-            href="#"
+            href="/grimoire"
             onClick={(e) => {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              if (isHome) {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
             }}
             className="flex items-center gap-2.5 text-grimoire-gold hover:text-grimoire-gold-bright transition-colors duration-300 select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-grimoire-gold/50 rounded-sm"
           >
@@ -114,23 +138,24 @@ export default function Navigation() {
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className={`relative text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-grimoire-gold/50 rounded-sm px-1 py-0.5 ${
-                  activeSection === link.href.slice(1)
-                    ? 'text-grimoire-gold'
-                    : 'text-grimoire-muted hover:text-grimoire-text'
-                }`}
-              >
-                {link.label}
-                {activeSection === link.href.slice(1) && (
-                  <span className="absolute -bottom-1 left-0 right-0 h-px bg-grimoire-gold/60" />
-                )}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const active = isLinkActive(link);
+              return (
+                <a
+                  key={link.href}
+                  href={resolveHref(link.href)}
+                  onClick={(e) => handleNavClick(e, link.href)}
+                  className={`relative text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-grimoire-gold/50 rounded-sm px-1 py-0.5 ${
+                    active ? 'text-grimoire-gold' : 'text-grimoire-muted hover:text-grimoire-text'
+                  }`}
+                >
+                  {link.label}
+                  {active && (
+                    <span className="absolute -bottom-1 left-0 right-0 h-px bg-grimoire-gold/60" />
+                  )}
+                </a>
+              );
+            })}
             <a
               href="https://github.com/0x8i11i0n/grimoire"
               target="_blank"
@@ -179,20 +204,21 @@ export default function Navigation() {
         </button>
 
         <div className="flex flex-col pt-20 px-6 gap-1">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={(e) => handleNavClick(e, link.href)}
-              className={`py-3 transition-colors duration-200 border-b border-grimoire-border/30 text-sm ${
-                activeSection === link.href.slice(1)
-                  ? 'text-grimoire-gold'
-                  : 'text-grimoire-muted hover:text-grimoire-text'
-              }`}
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const active = isLinkActive(link);
+            return (
+              <a
+                key={link.href}
+                href={resolveHref(link.href)}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className={`py-3 transition-colors duration-200 border-b border-grimoire-border/30 text-sm ${
+                  active ? 'text-grimoire-gold' : 'text-grimoire-muted hover:text-grimoire-text'
+                }`}
+              >
+                {link.label}
+              </a>
+            );
+          })}
           <a
             href="https://github.com/0x8i11i0n/grimoire"
             target="_blank"
