@@ -10,17 +10,20 @@ interface Line {
 }
 
 const lines: Line[] = [
+  { type: 'comment', text: '# Install from GitHub' },
+  { type: 'command', text: 'npm install github:0x8i11i0n/grimoire' },
+  { type: 'comment', text: '' },
   { type: 'comment', text: '# Summon a soul' },
-  { type: 'command', text: 'npx grimoire summon "Assistant" --source "custom"' },
+  { type: 'command', text: 'grimoire summon "Assistant" --source "custom"' },
   { type: 'comment', text: '' },
   { type: 'comment', text: '# Start the MCP server' },
-  { type: 'command', text: 'npx grimoire serve' },
+  { type: 'command', text: 'grimoire serve' },
   { type: 'comment', text: '' },
   { type: 'comment', text: '# Launch the dashboard' },
-  { type: 'command', text: 'npx grimoire dashboard' },
+  { type: 'command', text: 'grimoire dashboard' },
   { type: 'comment', text: '' },
   { type: 'comment', text: '# Run adversarial tests' },
-  { type: 'command', text: 'npx grimoire test assistant' },
+  { type: 'command', text: 'grimoire test assistant' },
 ];
 
 const rawText = lines.map((l) => l.text).join('\n');
@@ -34,7 +37,7 @@ function HighlightedCommand({ text }: { text: string }) {
     const token = match[0];
     if (token.startsWith('"')) {
       parts.push({ value: token, kind: 'string' });
-    } else if (token === 'npx' || token === 'grimoire') {
+    } else if (['npx', 'npm', 'grimoire', 'install'].includes(token)) {
       parts.push({ value: token, kind: 'keyword' });
     } else {
       parts.push({ value: token, kind: 'plain' });
