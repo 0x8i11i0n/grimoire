@@ -1,0 +1,95 @@
+name: GrimHub Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - 'registry/souls/**'
+      - 'registry/index.json'
+
+jobs:
+  validate:
+    name: Validate soul submission
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Detect changed soul directories
+        id: changed
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'registry/souls/**' | \
+            grep -oP 'registry/souls/[^/]+' | sort -u | tr '\n' ' ')
+          echo "souls=${CHANGED}" >> $GITHUB_OUTPUT
+          echo "Detected changed soul paths: ${CHANGED}"
+
+      - name: Run quality gate
+        id: gate
+        run: |
+          node scripts/validate-soul.js ${{ steps.changed.outputs.souls }} 2>&1 | tee gate-output.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
+
+      - name: Read gate output
+        id: read_output
+        if: always()
+        run: |
+          OUTPUT=$(cat gate-output.txt)
+          echo "output<<EOF" >> $GITHUB_OUTPUT
+          echo "$OUTPUT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Comment on PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `${{ steps.read_output.outputs.output }}`;
+            const exitCode = '${{ steps.gate.outputs.exit_code }}';
+            const passed = exitCode === '0';
+
+            const body = [
+              passed
+                ? '## GrimHub Quality Gate — PASSED'
+                : '## GrimHub Quality Gate — FAILED',
+              '',
+              '```',
+              output.slice(0, 3000),
+              '```',
+              '',
+              passed
+                ? '_This soul meets the quality bar and is ready to merge._'
+                : '_Fix the issues above, push a new commit, and the gate will re-run._',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      - name: Fail if gate did not pass
+        if: steps.gate.outputs.exit_code != '0'
+        run: exit 1
+
+      - name: Validate index.json is updated
+        run: |
+          node -e "
+            const fs = require('fs');
+            const index = JSON.parse(fs.readFileSync('registry/index.json', 'utf-8'));
+            if (!Array.isArray(index.souls)) {
+              console.error('registry/index.json must have a souls array');
+              process.exit(1);
+            }
+            if (index.total !== index.souls.length) {
+              console.error('registry/index.json: total (' + index.total + ') does not match souls.length (' + index.souls.length + ')');
+              process.exit(1);
+            }
+            console.log('registry/index.json is valid (' + index.total + ' souls)');
+          "
