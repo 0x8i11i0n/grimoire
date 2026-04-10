@@ -153,14 +153,6 @@
 .stagger-children.is-visible > *:nth-child(5) { transition-delay: 320ms; opacity: 1; transform: translateY(0); }
 .stagger-children.is-visible > *:nth-child(6) { transition-delay: 400ms; opacity: 1; transform: translateY(0); }
 
-/* ── Particle canvas ─────────────────────────────────────────────── */
-.particle-canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
 /* ── Custom scrollbar ────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
