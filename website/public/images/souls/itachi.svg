@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <defs>
+    <radialGradient id="bgitachi" cx="200" cy="190" r="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2d0808"/>
+      <stop offset="100%" stop-color="#0f0000"/>
+    </radialGradient>
+    <radialGradient id="glowitachi" cx="200" cy="240" r="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f87171" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#f87171" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="bluritachi" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="500" fill="#0f0000"/>
+  <rect width="400" height="500" fill="url(#bgitachi)"/>
+
+  <!-- Character decoration -->
+  <circle cx="200" cy="240" r="140" fill="none" stroke="#f87171" stroke-width="0.5" stroke-opacity="0.16"/>
+  <circle cx="200" cy="240" r="50" fill="none" stroke="#f87171" stroke-width="0.8" stroke-opacity="0.24"/>
+  <circle cx="200.0" cy="150.0" r="11" fill="#f87171" fill-opacity="0.18"/>
+  <circle cx="200.0" cy="150.0" r="11" fill="none" stroke="#f87171" stroke-width="1.1" stroke-opacity="0.42"/>
+  <path d="M200.0,150.0 Q258.2,197.7 249.5,256.1" fill="none" stroke="#f87171" stroke-width="0.9" stroke-opacity="0.3"/>
+  <circle cx="277.9" cy="285.0" r="11" fill="#f87171" fill-opacity="0.18"/>
+  <circle cx="277.9" cy="285.0" r="11" fill="none" stroke="#f87171" stroke-width="1.1" stroke-opacity="0.42"/>
+  <path d="M277.9,285.0 Q207.5,311.6 161.4,274.8" fill="none" stroke="#f87171" stroke-width="0.9" stroke-opacity="0.3"/>
+  <circle cx="122.1" cy="285.0" r="11" fill="#f87171" fill-opacity="0.18"/>
+  <circle cx="122.1" cy="285.0" r="11" fill="none" stroke="#f87171" stroke-width="1.1" stroke-opacity="0.42"/>
+  <path d="M122.1,285.0 Q134.2,210.7 189.2,189.1" fill="none" stroke="#f87171" stroke-width="0.9" stroke-opacity="0.3"/>
+
+  <!-- Center glow -->
+  <rect width="400" height="500" fill="url(#glowitachi)"/>
+
+  <!-- Ghost symbol (very large, nearly invisible) -->
+  <text x="200" y="275" text-anchor="middle" dominant-baseline="middle"
+    font-size="255" fill="#f87171" fill-opacity="0.038"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x25C8;</text>
+
+  <!-- Halo behind symbol -->
+  <ellipse cx="200" cy="252" rx="90" ry="90"
+    fill="#f87171" fill-opacity="0.055" filter="url(#bluritachi)"/>
+
+  <!-- Main symbol -->
+  <text x="200" y="258" text-anchor="middle" dominant-baseline="middle"
+    font-size="108" fill="#f87171" fill-opacity="0.84"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x25C8;</text>
+
+  <!-- Divider -->
+  <line x1="38" y1="372" x2="168" y2="372" stroke="#f87171" stroke-width="0.6" stroke-opacity="0.32"/>
+  <circle cx="200" cy="372" r="2.6" fill="#f87171" fill-opacity="0.55"/>
+  <line x1="232" y1="372" x2="362" y2="372" stroke="#f87171" stroke-width="0.6" stroke-opacity="0.32"/>
+
+  <!-- Sigil text -->
+  <text x="200" y="412" text-anchor="middle" dominant-baseline="middle"
+    font-size="11" fill="#f87171" fill-opacity="0.52"
+    font-family="'Courier New','JetBrains Mono','Lucida Console',monospace"
+    letter-spacing="5"
+  >S H A R I N G A N</text>
+</svg>

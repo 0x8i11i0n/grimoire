@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <defs>
+    <radialGradient id="bgroymustang" cx="200" cy="190" r="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3d1500"/>
+      <stop offset="100%" stop-color="#1a0500"/>
+    </radialGradient>
+    <radialGradient id="glowroymustang" cx="200" cy="240" r="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#f97316" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blurroymustang" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="500" fill="#1a0500"/>
+  <rect width="400" height="500" fill="url(#bgroymustang)"/>
+
+  <!-- Character decoration -->
+  <line x1="200" y1="490" x2="86.0" y2="395.7" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.08"/>
+  <line x1="200" y1="490" x2="102.2" y2="353.4" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.11"/>
+  <line x1="200" y1="490" x2="131.7" y2="310.6" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.14"/>
+  <line x1="200" y1="490" x2="176.6" y2="269.2" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.08"/>
+  <line x1="200" y1="490" x2="238.2" y2="240.9" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.11"/>
+  <line x1="200" y1="490" x2="309.2" y2="238.7" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.14"/>
+  <line x1="200" y1="490" x2="362.3" y2="284.3" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.08"/>
+  <line x1="200" y1="490" x2="393.4" y2="344.5" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.11"/>
+  <line x1="200" y1="490" x2="387.1" y2="413.8" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.14"/>
+  <line x1="200" y1="490" x2="368.6" y2="468.1" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.08"/>
+  <line x1="200" y1="490" x2="350.7" y2="509.5" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.11"/>
+  <line x1="200" y1="490" x2="357.4" y2="554.1" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.14"/>
+  <line x1="200" y1="490" x2="361.4" y2="611.4" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.08"/>
+  <line x1="200" y1="490" x2="349.9" y2="680.0" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.11"/>
+  <line x1="200" y1="490" x2="304.5" y2="730.3" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.14"/>
+  <line x1="200" y1="490" x2="241.5" y2="760.8" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.08"/>
+  <line x1="200" y1="490" x2="173.4" y2="740.6" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.11"/>
+  <line x1="200" y1="490" x2="121.0" y2="697.5" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.14"/>
+  <line x1="200" y1="490" x2="88.2" y2="646.1" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.08"/>
+  <line x1="200" y1="490" x2="70.6" y2="597.1" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.11"/>
+  <line x1="200" y1="490" x2="200" y2="-20" stroke="#f97316" stroke-width="0.9" stroke-opacity="0.14"/>
+
+  <!-- Center glow -->
+  <rect width="400" height="500" fill="url(#glowroymustang)"/>
+
+  <!-- Ghost symbol (very large, nearly invisible) -->
+  <text x="200" y="275" text-anchor="middle" dominant-baseline="middle"
+    font-size="255" fill="#f97316" fill-opacity="0.038"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x2726;</text>
+
+  <!-- Halo behind symbol -->
+  <ellipse cx="200" cy="252" rx="90" ry="90"
+    fill="#f97316" fill-opacity="0.055" filter="url(#blurroymustang)"/>
+
+  <!-- Main symbol -->
+  <text x="200" y="258" text-anchor="middle" dominant-baseline="middle"
+    font-size="108" fill="#f97316" fill-opacity="0.84"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x2726;</text>
+
+  <!-- Divider -->
+  <line x1="38" y1="372" x2="168" y2="372" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.32"/>
+  <circle cx="200" cy="372" r="2.6" fill="#f97316" fill-opacity="0.55"/>
+  <line x1="232" y1="372" x2="362" y2="372" stroke="#f97316" stroke-width="0.6" stroke-opacity="0.32"/>
+
+  <!-- Sigil text -->
+  <text x="200" y="412" text-anchor="middle" dominant-baseline="middle"
+    font-size="11" fill="#f97316" fill-opacity="0.52"
+    font-family="'Courier New','JetBrains Mono','Lucida Console',monospace"
+    letter-spacing="5"
+  >F L A M E</text>
+</svg>

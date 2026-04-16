@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <defs>
+    <radialGradient id="bgvegeta" cx="200" cy="190" r="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0f1a4a"/>
+      <stop offset="100%" stop-color="#030818"/>
+    </radialGradient>
+    <radialGradient id="glowvegeta" cx="200" cy="240" r="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#818cf8" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#818cf8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blurvegeta" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="500" fill="#030818"/>
+  <rect width="400" height="500" fill="url(#bgvegeta)"/>
+
+  <!-- Character decoration -->
+  <line x1="218.0" y1="248.0" x2="432.0" y2="248.0" stroke="#818cf8" stroke-width="0.8" stroke-opacity="0.18"/>
+  <line x1="217.4" y1="252.7" x2="393.2" y2="299.8" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="215.6" y1="257.0" x2="373.2" y2="348.0" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="212.7" y1="260.7" x2="364.0" y2="412.0" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="209.0" y1="263.6" x2="300.0" y2="421.2" stroke="#818cf8" stroke-width="0.8" stroke-opacity="0.18"/>
+  <line x1="204.7" y1="265.4" x2="251.8" y2="441.2" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="200.0" y1="266.0" x2="200.0" y2="480.0" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="195.3" y1="265.4" x2="148.2" y2="441.2" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="191.0" y1="263.6" x2="100.0" y2="421.2" stroke="#818cf8" stroke-width="0.8" stroke-opacity="0.18"/>
+  <line x1="187.3" y1="260.7" x2="36.0" y2="412.0" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="184.4" y1="257.0" x2="26.8" y2="348.0" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="182.6" y1="252.7" x2="6.8" y2="299.8" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="182.0" y1="248.0" x2="-32.0" y2="248.0" stroke="#818cf8" stroke-width="0.8" stroke-opacity="0.18"/>
+  <line x1="182.6" y1="243.3" x2="6.8" y2="196.2" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="184.4" y1="239.0" x2="26.8" y2="148.0" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="187.3" y1="235.3" x2="36.0" y2="84.0" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="191.0" y1="232.4" x2="100.0" y2="74.8" stroke="#818cf8" stroke-width="0.8" stroke-opacity="0.18"/>
+  <line x1="195.3" y1="230.6" x2="148.2" y2="54.8" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="200.0" y1="230.0" x2="200.0" y2="16.0" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="204.7" y1="230.6" x2="251.8" y2="54.8" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="209.0" y1="232.4" x2="300.0" y2="74.8" stroke="#818cf8" stroke-width="0.8" stroke-opacity="0.18"/>
+  <line x1="212.7" y1="235.3" x2="364.0" y2="84.0" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="215.6" y1="239.0" x2="373.2" y2="148.0" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+  <line x1="217.4" y1="243.3" x2="393.2" y2="196.2" stroke="#818cf8" stroke-width="0.4" stroke-opacity="0.08"/>
+
+  <!-- Center glow -->
+  <rect width="400" height="500" fill="url(#glowvegeta)"/>
+
+  <!-- Ghost symbol (very large, nearly invisible) -->
+  <text x="200" y="275" text-anchor="middle" dominant-baseline="middle"
+    font-size="255" fill="#818cf8" fill-opacity="0.038"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x22C6;</text>
+
+  <!-- Halo behind symbol -->
+  <ellipse cx="200" cy="252" rx="90" ry="90"
+    fill="#818cf8" fill-opacity="0.055" filter="url(#blurvegeta)"/>
+
+  <!-- Main symbol -->
+  <text x="200" y="258" text-anchor="middle" dominant-baseline="middle"
+    font-size="108" fill="#818cf8" fill-opacity="0.84"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x22C6;</text>
+
+  <!-- Divider -->
+  <line x1="38" y1="372" x2="168" y2="372" stroke="#818cf8" stroke-width="0.6" stroke-opacity="0.32"/>
+  <circle cx="200" cy="372" r="2.6" fill="#818cf8" fill-opacity="0.55"/>
+  <line x1="232" y1="372" x2="362" y2="372" stroke="#818cf8" stroke-width="0.6" stroke-opacity="0.32"/>
+
+  <!-- Sigil text -->
+  <text x="200" y="412" text-anchor="middle" dominant-baseline="middle"
+    font-size="11" fill="#818cf8" fill-opacity="0.52"
+    font-family="'Courier New','JetBrains Mono','Lucida Console',monospace"
+    letter-spacing="5"
+  >S A I Y A N</text>
+</svg>
