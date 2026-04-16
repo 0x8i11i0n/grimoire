@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <defs>
+    <radialGradient id="bgdiobrando" cx="200" cy="190" r="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3d0505"/>
+      <stop offset="100%" stop-color="#1a0000"/>
+    </radialGradient>
+    <radialGradient id="glowdiobrando" cx="200" cy="240" r="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#f43f5e" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blurdiobrando" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="500" fill="#1a0000"/>
+  <rect width="400" height="500" fill="url(#bgdiobrando)"/>
+
+  <!-- Character decoration -->
+  <circle cx="200" cy="240" r="148" fill="none" stroke="#f43f5e" stroke-width="0.6" stroke-opacity="0.18"/>
+  <circle cx="200" cy="240" r="133.2" fill="none" stroke="#f43f5e" stroke-width="0.3" stroke-opacity="0.08"/>
+  <line x1="200.0" y1="96.0" x2="200.0" y2="110.0" stroke="#f43f5e" stroke-width="1.2" stroke-opacity="0.38"/>
+  <line x1="272.0" y1="115.3" x2="269.0" y2="120.5" stroke="#f43f5e" stroke-width="0.6" stroke-opacity="0.2"/>
+  <line x1="324.7" y1="168.0" x2="319.5" y2="171.0" stroke="#f43f5e" stroke-width="0.6" stroke-opacity="0.2"/>
+  <line x1="344.0" y1="240.0" x2="330.0" y2="240.0" stroke="#f43f5e" stroke-width="1.2" stroke-opacity="0.38"/>
+  <line x1="324.7" y1="312.0" x2="319.5" y2="309.0" stroke="#f43f5e" stroke-width="0.6" stroke-opacity="0.2"/>
+  <line x1="272.0" y1="364.7" x2="269.0" y2="359.5" stroke="#f43f5e" stroke-width="0.6" stroke-opacity="0.2"/>
+  <line x1="200.0" y1="384.0" x2="200.0" y2="370.0" stroke="#f43f5e" stroke-width="1.2" stroke-opacity="0.38"/>
+  <line x1="128.0" y1="364.7" x2="131.0" y2="359.5" stroke="#f43f5e" stroke-width="0.6" stroke-opacity="0.2"/>
+  <line x1="75.3" y1="312.0" x2="80.5" y2="309.0" stroke="#f43f5e" stroke-width="0.6" stroke-opacity="0.2"/>
+  <line x1="56.0" y1="240.0" x2="70.0" y2="240.0" stroke="#f43f5e" stroke-width="1.2" stroke-opacity="0.38"/>
+  <line x1="75.3" y1="168.0" x2="80.5" y2="171.0" stroke="#f43f5e" stroke-width="0.6" stroke-opacity="0.2"/>
+  <line x1="128.0" y1="115.3" x2="131.0" y2="120.5" stroke="#f43f5e" stroke-width="0.6" stroke-opacity="0.2"/>
+  <line x1="200" y1="240" x2="200" y2="160" stroke="#f43f5e" stroke-width="1.6" stroke-opacity="0.4" stroke-linecap="round"/>
+  <line x1="200" y1="240" x2="200" y2="122" stroke="#f43f5e" stroke-width="1" stroke-opacity="0.3" stroke-linecap="round"/>
+  <circle cx="200" cy="240" r="4.5" fill="#f43f5e" fill-opacity="0.45"/>
+  <path d="M200 240 L200.0 240.0 L201.7 240.3 L203.2 241.2 L204.3 242.6 L205.1 244.5 L205.3 246.6 L204.8 248.9 L203.6 251.3 L201.8 253.4 L199.3 255.2 L196.2 256.5 L192.6 257.1 L188.7 256.9 L184.7 255.8 L180.8 253.8 L177.1 250.8 L173.9 247.0 L171.4 242.3 L169.7 237.0 L169.1 231.2 L169.7 225.0 L171.5 218.8 L174.6 212.9 L178.9 207.3 L184.5 202.5 L191.1 198.7 L198.6 196.1 L206.7 194.9 L215.2 195.2 L223.8 197.2 L232.2 200.8 L240.0 206.1 L246.9 213.0 L252.5 221.2 L256.7 230.7 L259.1 241.0 L259.7 251.9 L258.2 263.0 L254.5 273.9 L248.8 284.3 L241.1 293.7 L231.6 301.7 L220.6 307.9 L208.3 312.2 L195.1 314.2 L181.5 313.8 L167.9 310.8 L154.8 305.3 L142.6 297.3 L131.9 287.1 L123.0 274.8 L116.4 260.9 L112.3 245.7 L111.0 229.7 L112.7 213.4 L117.3 197.5 L124.9 182.3 L135.4 168.6 L148.3 156.7 L163.4 147.2 L180.3 140.5 L198.4 136.9 L217.2 136.6 L236.0 139.8 L254.2 146.4 L271.1 156.3 L286.3 169.3 L299.0 185.1 L308.9 203.2 L315.4 223.0" fill="none" stroke="#f43f5e" stroke-width="0.4" stroke-opacity="0.1"/>
+
+  <!-- Center glow -->
+  <rect width="400" height="500" fill="url(#glowdiobrando)"/>
+
+  <!-- Ghost symbol (very large, nearly invisible) -->
+  <text x="200" y="275" text-anchor="middle" dominant-baseline="middle"
+    font-size="255" fill="#f43f5e" fill-opacity="0.038"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x2605;</text>
+
+  <!-- Halo behind symbol -->
+  <ellipse cx="200" cy="252" rx="90" ry="90"
+    fill="#f43f5e" fill-opacity="0.055" filter="url(#blurdiobrando)"/>
+
+  <!-- Main symbol -->
+  <text x="200" y="258" text-anchor="middle" dominant-baseline="middle"
+    font-size="108" fill="#f43f5e" fill-opacity="0.84"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x2605;</text>
+
+  <!-- Divider -->
+  <line x1="38" y1="372" x2="168" y2="372" stroke="#f43f5e" stroke-width="0.6" stroke-opacity="0.32"/>
+  <circle cx="200" cy="372" r="2.6" fill="#f43f5e" fill-opacity="0.55"/>
+  <line x1="232" y1="372" x2="362" y2="372" stroke="#f43f5e" stroke-width="0.6" stroke-opacity="0.32"/>
+
+  <!-- Sigil text -->
+  <text x="200" y="412" text-anchor="middle" dominant-baseline="middle"
+    font-size="11" fill="#f43f5e" fill-opacity="0.52"
+    font-family="'Courier New','JetBrains Mono','Lucida Console',monospace"
+    letter-spacing="5"
+  >Z A  W A R U D O</text>
+</svg>

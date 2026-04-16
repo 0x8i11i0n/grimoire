@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <defs>
+    <radialGradient id="bggojo" cx="200" cy="190" r="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0d2d60"/>
+      <stop offset="100%" stop-color="#02091a"/>
+    </radialGradient>
+    <radialGradient id="glowgojo" cx="200" cy="240" r="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#60a5fa" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blurgojo" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="500" fill="#02091a"/>
+  <rect width="400" height="500" fill="url(#bggojo)"/>
+
+  <!-- Character decoration -->
+  <circle cx="200" cy="230" r="28" fill="none" stroke="#60a5fa" stroke-width="0.9" stroke-opacity="0.35"/>
+  <circle cx="200" cy="230" r="62" fill="none" stroke="#60a5fa" stroke-width="0.6" stroke-opacity="0.22"/>
+  <circle cx="200" cy="230" r="108" fill="none" stroke="#60a5fa" stroke-width="0.5" stroke-opacity="0.15"/>
+  <circle cx="200" cy="230" r="162" fill="none" stroke="#60a5fa" stroke-width="0.4" stroke-opacity="0.1"/>
+  <circle cx="200" cy="230" r="222" fill="none" stroke="#60a5fa" stroke-width="0.3" stroke-opacity="0.07"/>
+  <circle cx="200" cy="230" r="290" fill="none" stroke="#60a5fa" stroke-width="0.25" stroke-opacity="0.05"/>
+  <line x1="-95" y1="230" x2="495" y2="230" stroke="#60a5fa" stroke-width="0.3" stroke-opacity="0.09"/>
+  <line x1="200" y1="-65" x2="200" y2="525" stroke="#60a5fa" stroke-width="0.3" stroke-opacity="0.09"/>
+
+  <!-- Center glow -->
+  <rect width="400" height="500" fill="url(#glowgojo)"/>
+
+  <!-- Ghost symbol (very large, nearly invisible) -->
+  <text x="200" y="275" text-anchor="middle" dominant-baseline="middle"
+    font-size="255" fill="#60a5fa" fill-opacity="0.038"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x221E;</text>
+
+  <!-- Halo behind symbol -->
+  <ellipse cx="200" cy="252" rx="90" ry="90"
+    fill="#60a5fa" fill-opacity="0.055" filter="url(#blurgojo)"/>
+
+  <!-- Main symbol -->
+  <text x="200" y="258" text-anchor="middle" dominant-baseline="middle"
+    font-size="108" fill="#60a5fa" fill-opacity="0.84"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x221E;</text>
+
+  <!-- Divider -->
+  <line x1="38" y1="372" x2="168" y2="372" stroke="#60a5fa" stroke-width="0.6" stroke-opacity="0.32"/>
+  <circle cx="200" cy="372" r="2.6" fill="#60a5fa" fill-opacity="0.55"/>
+  <line x1="232" y1="372" x2="362" y2="372" stroke="#60a5fa" stroke-width="0.6" stroke-opacity="0.32"/>
+
+  <!-- Sigil text -->
+  <text x="200" y="412" text-anchor="middle" dominant-baseline="middle"
+    font-size="11" fill="#60a5fa" fill-opacity="0.52"
+    font-family="'Courier New','JetBrains Mono','Lucida Console',monospace"
+    letter-spacing="5"
+  >I N F I N I T Y</text>
+</svg>

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <defs>
+    <radialGradient id="bgsungjinwoo" cx="200" cy="190" r="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0a1828"/>
+      <stop offset="100%" stop-color="#020408"/>
+    </radialGradient>
+    <radialGradient id="glowsungjinwoo" cx="200" cy="240" r="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blursungjinwoo" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="500" fill="#020408"/>
+  <rect width="400" height="500" fill="url(#bgsungjinwoo)"/>
+
+  <!-- Character decoration -->
+  <path d="M36,500 Q50,422.5 43.0,345" fill="none" stroke="#a78bfa" stroke-width="1" stroke-opacity="0.11" stroke-linecap="round"/>
+  <path d="M66,500 Q44,402.5 55.0,305" fill="none" stroke="#a78bfa" stroke-width="1.28" stroke-opacity="0.15" stroke-linecap="round"/>
+  <path d="M96,500 Q106,380 101.0,260" fill="none" stroke="#a78bfa" stroke-width="1.56" stroke-opacity="0.19" stroke-linecap="round"/>
+  <path d="M126,500 Q98,412.5 112.0,325" fill="none" stroke="#a78bfa" stroke-width="1" stroke-opacity="0.22999999999999998" stroke-linecap="round"/>
+  <path d="M156,500 Q172,370 164.0,240" fill="none" stroke="#a78bfa" stroke-width="1.28" stroke-opacity="0.11" stroke-linecap="round"/>
+  <path d="M186,500 Q166,400 176.0,300" fill="none" stroke="#a78bfa" stroke-width="1.56" stroke-opacity="0.15" stroke-linecap="round"/>
+  <path d="M216,500 Q241,410 228.5,320" fill="none" stroke="#a78bfa" stroke-width="1" stroke-opacity="0.19" stroke-linecap="round"/>
+  <path d="M246,500 Q234,377.5 240.0,255" fill="none" stroke="#a78bfa" stroke-width="1.28" stroke-opacity="0.22999999999999998" stroke-linecap="round"/>
+  <path d="M276,500 Q294,417.5 285.0,335" fill="none" stroke="#a78bfa" stroke-width="1.56" stroke-opacity="0.11" stroke-linecap="round"/>
+  <path d="M306,500 Q282,392.5 294.0,285" fill="none" stroke="#a78bfa" stroke-width="1" stroke-opacity="0.15" stroke-linecap="round"/>
+  <path d="M336,500 Q344,407.5 340.0,315" fill="none" stroke="#a78bfa" stroke-width="1.28" stroke-opacity="0.19" stroke-linecap="round"/>
+  <path d="M366,500 Q346,385 356.0,270" fill="none" stroke="#a78bfa" stroke-width="1.56" stroke-opacity="0.22999999999999998" stroke-linecap="round"/>
+  <ellipse cx="200" cy="492" rx="185" ry="20" fill="#a78bfa" fill-opacity="0.06"/>
+  <line x1="200" y1="80" x2="28.5" y2="350.2" stroke="#a78bfa" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="200" y1="80" x2="-41.0" y2="290.5" stroke="#a78bfa" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="200" y1="80" x2="-90.8" y2="213.6" stroke="#a78bfa" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="200" y1="80" x2="-116.7" y2="125.8" stroke="#a78bfa" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="200" y1="80" x2="-116.7" y2="34.2" stroke="#a78bfa" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="200" y1="80" x2="-90.8" y2="-53.6" stroke="#a78bfa" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="200" y1="80" x2="-41.0" y2="-130.5" stroke="#a78bfa" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="200" y1="80" x2="28.5" y2="-190.2" stroke="#a78bfa" stroke-width="0.5" stroke-opacity="0.09"/>
+
+  <!-- Center glow -->
+  <rect width="400" height="500" fill="url(#glowsungjinwoo)"/>
+
+  <!-- Ghost symbol (very large, nearly invisible) -->
+  <text x="200" y="275" text-anchor="middle" dominant-baseline="middle"
+    font-size="255" fill="#a78bfa" fill-opacity="0.038"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x25C8;</text>
+
+  <!-- Halo behind symbol -->
+  <ellipse cx="200" cy="252" rx="90" ry="90"
+    fill="#a78bfa" fill-opacity="0.055" filter="url(#blursungjinwoo)"/>
+
+  <!-- Main symbol -->
+  <text x="200" y="258" text-anchor="middle" dominant-baseline="middle"
+    font-size="108" fill="#a78bfa" fill-opacity="0.84"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x25C8;</text>
+
+  <!-- Divider -->
+  <line x1="38" y1="372" x2="168" y2="372" stroke="#a78bfa" stroke-width="0.6" stroke-opacity="0.32"/>
+  <circle cx="200" cy="372" r="2.6" fill="#a78bfa" fill-opacity="0.55"/>
+  <line x1="232" y1="372" x2="362" y2="372" stroke="#a78bfa" stroke-width="0.6" stroke-opacity="0.32"/>
+
+  <!-- Sigil text -->
+  <text x="200" y="412" text-anchor="middle" dominant-baseline="middle"
+    font-size="11" fill="#a78bfa" fill-opacity="0.52"
+    font-family="'Courier New','JetBrains Mono','Lucida Console',monospace"
+    letter-spacing="5"
+  >S H A D O W</text>
+</svg>

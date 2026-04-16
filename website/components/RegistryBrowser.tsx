@@ -175,7 +175,7 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
   const installCmd = `grimoire registry install ${soul.name}`;
 
   // Image URL: prefer registry field, else derive from name
-  const imgSrc = soul.image ?? `https://0x8i11i0n.github.io/grimoire/images/souls/${soul.name}.jpg`;
+  const imgSrc = soul.image ?? `https://0x8i11i0n.github.io/grimoire/images/souls/${soul.name}.svg`;
 
   const handleHoverEnter = () => {
     setHovered(true);

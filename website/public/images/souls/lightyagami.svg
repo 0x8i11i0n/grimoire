@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
+  <defs>
+    <radialGradient id="bglightyagami" cx="200" cy="190" r="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#22224a"/>
+      <stop offset="100%" stop-color="#0a0a14"/>
+    </radialGradient>
+    <radialGradient id="glowlightyagami" cx="200" cy="240" r="210" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#c4a265" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#c4a265" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blurlightyagami" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="500" fill="#0a0a14"/>
+  <rect width="400" height="500" fill="url(#bglightyagami)"/>
+
+  <!-- Character decoration -->
+  <line x1="20" y1="38" x2="380" y2="38" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="60" x2="380" y2="60" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="82" x2="380" y2="82" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="104" x2="380" y2="104" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="126" x2="380" y2="126" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="148" x2="380" y2="148" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="170" x2="380" y2="170" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="192" x2="380" y2="192" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="214" x2="380" y2="214" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="236" x2="380" y2="236" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="258" x2="380" y2="258" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="280" x2="380" y2="280" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="302" x2="380" y2="302" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="324" x2="380" y2="324" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="346" x2="380" y2="346" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="368" x2="380" y2="368" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="390" x2="380" y2="390" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="412" x2="380" y2="412" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="434" x2="380" y2="434" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="456" x2="380" y2="456" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="20" y1="478" x2="380" y2="478" stroke="#c4a265" stroke-width="0.5" stroke-opacity="0.09"/>
+  <line x1="58" y1="0" x2="58" y2="500" stroke="#78613a" stroke-width="0.8" stroke-opacity="0.18"/>
+
+  <!-- Center glow -->
+  <rect width="400" height="500" fill="url(#glowlightyagami)"/>
+
+  <!-- Ghost symbol (very large, nearly invisible) -->
+  <text x="200" y="275" text-anchor="middle" dominant-baseline="middle"
+    font-size="255" fill="#c4a265" fill-opacity="0.038"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x2726;</text>
+
+  <!-- Halo behind symbol -->
+  <ellipse cx="200" cy="252" rx="90" ry="90"
+    fill="#c4a265" fill-opacity="0.055" filter="url(#blurlightyagami)"/>
+
+  <!-- Main symbol -->
+  <text x="200" y="258" text-anchor="middle" dominant-baseline="middle"
+    font-size="108" fill="#c4a265" fill-opacity="0.84"
+    font-family="'Segoe UI Symbol','Apple Color Emoji','Noto Sans Symbols2','Noto Sans Symbols',sans-serif"
+  >&#x2726;</text>
+
+  <!-- Divider -->
+  <line x1="38" y1="372" x2="168" y2="372" stroke="#c4a265" stroke-width="0.6" stroke-opacity="0.32"/>
+  <circle cx="200" cy="372" r="2.6" fill="#c4a265" fill-opacity="0.55"/>
+  <line x1="232" y1="372" x2="362" y2="372" stroke="#c4a265" stroke-width="0.6" stroke-opacity="0.32"/>
+
+  <!-- Sigil text -->
+  <text x="200" y="412" text-anchor="middle" dominant-baseline="middle"
+    font-size="11" fill="#c4a265" fill-opacity="0.52"
+    font-family="'Courier New','JetBrains Mono','Lucida Console',monospace"
+    letter-spacing="5"
+  >K I R A</text>
+</svg>
