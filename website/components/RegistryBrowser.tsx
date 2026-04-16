@@ -37,6 +37,48 @@ const CHAR_PALETTE: Record<string, readonly [string, string, string]> = {
   georgewashington: ['#080806', '#1a1a14', '#57534e'],
 };
 
+// MyAnimeList search queries used to fetch live character portraits via Jikan API
+const MAL_QUERIES: Record<string, string> = {
+  lelouch:          'Lelouch Lamperouge',
+  lightyagami:      'Light Yagami',
+  gojo:             'Gojo Satoru',
+  edwardelric:      'Edward Elric',
+  roymustang:       'Roy Mustang',
+  itachi:           'Itachi Uchiha',
+  vegeta:           'Vegeta',
+  levi:             'Levi Ackerman',
+  gilgamesh:        'Gilgamesh',
+  diobrando:        'Dio Brando',
+  sungjinwoo:       'Sung Jinwoo',
+};
+
+// Single shared queue — serialises all Jikan requests, one every 420 ms
+// so we stay comfortably under the public 3 req/s rate limit.
+let jikanQueue: Promise<void> = Promise.resolve();
+
+function fetchMalImage(soulName: string): Promise<string | null> {
+  const query = MAL_QUERIES[soulName];
+  if (!query) return Promise.resolve(null);
+
+  const p: Promise<string | null> = jikanQueue.then(async () => {
+    await new Promise<void>((r) => setTimeout(r, 420));
+    const res = await fetch(
+      `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(query)}&limit=1`,
+    );
+    const json = await res.json();
+    const entry = json?.data?.[0];
+    return (
+      (entry?.images?.jpg?.large_image_url as string | undefined) ??
+      (entry?.images?.jpg?.image_url as string | undefined) ??
+      null
+    );
+  }).catch(() => null);
+
+  // Advance the queue regardless of success/failure
+  jikanQueue = p.then(() => undefined, () => undefined);
+  return p;
+}
+
 const RARITY: Record<number, { label: string; border: string; glow: string; badge: string }> = {
   10: {
     label:  'LEGENDARY',
@@ -167,6 +209,7 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
   const [imgFailed, setImgFailed] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [shimmer, setShimmer] = useState(false);
+  const [resolvedImg, setResolvedImg] = useState<string | null>(null);
   const shimmerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const rarity  = getRarity(soul.authenticityScore);
@@ -174,8 +217,17 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
   const isLegendary = soul.authenticityScore >= 10;
   const installCmd = `grimoire registry install ${soul.name}`;
 
-  // Image URL: prefer registry field, else derive from name
-  const imgSrc = soul.image ?? `https://0x8i11i0n.github.io/grimoire/images/souls/${soul.name}.svg`;
+  // Fetch live MAL portrait via Jikan; falls back to SVG art while loading
+  useEffect(() => {
+    fetchMalImage(soul.name).then((url) => { if (url) setResolvedImg(url); });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // When a new image URL arrives, give it a fresh attempt
+  useEffect(() => { setImgFailed(false); }, [resolvedImg]);
+
+  const imgSrc = resolvedImg
+    ?? soul.image
+    ?? `https://0x8i11i0n.github.io/grimoire/images/souls/${soul.name}.svg`;
 
   const handleHoverEnter = () => {
     setHovered(true);
