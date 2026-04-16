@@ -207,6 +207,7 @@ interface SoulEntry {
 
 function SoulCard({ soul }: { soul: SoulEntry }) {
   const [imgFailed, setImgFailed] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [shimmer, setShimmer] = useState(false);
   const [resolvedImg, setResolvedImg] = useState<string | null>(null);
@@ -222,8 +223,8 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
     fetchMalImage(soul.name).then((url) => { if (url) setResolvedImg(url); });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // When a new image URL arrives, give it a fresh attempt
-  useEffect(() => { setImgFailed(false); }, [resolvedImg]);
+  // When a new image URL arrives, reset failure and loaded state for fresh attempt
+  useEffect(() => { setImgFailed(false); setImgLoaded(false); }, [resolvedImg]);
 
   const imgSrc = resolvedImg
     ?? soul.image
@@ -292,8 +293,8 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
               style={{ background: `linear-gradient(175deg, ${palette[1]} 0%, ${palette[2]}55 60%, ${palette[0]} 100%)` }}
             />
 
-            {/* Symbol art — always rendered; covered by image when it loads, visible on fail */}
-            {(() => {
+            {/* Symbol art — shown as placeholder until portrait loads */}
+            {(!imgLoaded || imgFailed) && (() => {
               const art = CHAR_ART[soul.name] ?? { symbol: '◈', sigil: soul.name.toUpperCase() };
               return (
                 <div className="absolute inset-0 flex flex-col items-center justify-center select-none pointer-events-none overflow-hidden">
@@ -337,6 +338,7 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
               <img
                 src={imgSrc}
                 alt={soul.displayName}
+                onLoad={() => setImgLoaded(true)}
                 onError={() => setImgFailed(true)}
                 className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 ease-out"
                 style={{ transform: hovered ? 'scale(1.06)' : 'scale(1.0)' }}
