@@ -171,6 +171,26 @@
   background: #3a3245;
 }
 
+/* ── Soul card animations ────────────────────────────────────────── */
+@keyframes cardShimmer {
+  0%   { transform: translateX(-120%) skewX(-15deg); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: translateX(220%) skewX(-15deg); opacity: 0; }
+}
+
+@keyframes legendaryPulse {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 0.85; }
+}
+
+.soul-card-shimmer {
+  animation: cardShimmer 1s ease-out forwards;
+}
+
+.soul-card-legendary-border {
+  animation: legendaryPulse 3s ease-in-out infinite;
+}
+
 /* ── Code styling ────────────────────────────────────────────────── */
 code {
   @apply font-mono text-grimoire-gold-bright bg-grimoire-surface px-1.5 py-0.5 rounded text-sm;
