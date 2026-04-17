@@ -8,6 +8,7 @@ const navLinks = [
   { label: 'Compare', href: '#compare', section: 'compare' },
   { label: 'Get Started', href: '#quickstart', section: 'quickstart' },
   { label: 'GrimHub', href: '/grimoire/registry', section: null as null },
+  { label: 'Observatory', href: '/grimoire/observatory', section: null as null },
 ];
 
 function GrimoireLogo() {
