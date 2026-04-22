@@ -286,7 +286,7 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
         >
 
           {/* ── Portrait image section ── */}
-          <div className="relative overflow-hidden" style={{ height: '230px' }}>
+          <div className="relative overflow-hidden h-[230px] lg:h-[280px]">
             {/* Fallback gradient (always present behind image) */}
             <div
               className="absolute inset-0"
@@ -340,7 +340,7 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
                 alt={soul.displayName}
                 onLoad={() => setImgLoaded(true)}
                 onError={() => setImgFailed(true)}
-                className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 ease-out"
+                className="absolute inset-0 w-full h-full object-cover object-[center_15%] transition-transform duration-500 ease-out"
                 style={{ transform: hovered ? 'scale(1.06)' : 'scale(1.0)' }}
               />
             )}
