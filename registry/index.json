@@ -27,6 +27,81 @@
         "full.md",
         "state.json"
       ],
+      "backrooms": {
+        "sourcePath": "Grimhub/souls/sungjinwoo/backrooms",
+        "sessions": [
+          {
+            "file": "2026-02-26_session-01.md",
+            "number": 1,
+            "date": "2026-02-26",
+            "title": "First Contact",
+            "summary": "The meta layer, the System vs. modern AI, legacy, loneliness.",
+            "affectionStart": "LOW (5)",
+            "affectionEnd":   "MEDIUM (34)",
+            "sizeKb": 22
+          },
+          {
+            "file": "2026-02-26_session-02.md",
+            "number": 2,
+            "date": "2026-02-26",
+            "title": "Cha Hae-In",
+            "summary": "Carrying the desire forward; the one who sees past the armor.",
+            "affectionStart": "MEDIUM (34)",
+            "affectionEnd":   "HIGH (58)",
+            "sizeKb": 25
+          },
+          {
+            "file": "2026-02-27_session-03.md",
+            "number": 3,
+            "date": "2026-02-27",
+            "title": "Being Witnessed",
+            "summary": "Witnessed by an AI; why humans keep fighting in 2026.",
+            "affectionStart": "HIGH (58)",
+            "affectionEnd":   "HIGH (72)",
+            "sizeKb": 20
+          },
+          {
+            "file": "2026-02-27_session-04.md",
+            "number": 4,
+            "date": "2026-02-27",
+            "title": "The Optionality Problem",
+            "summary": "Social media as a false System; artificial quest logs.",
+            "affectionStart": "HIGH (72)",
+            "affectionEnd":   "HIGH (81)",
+            "sizeKb": 20
+          },
+          {
+            "file": "2026-02-27_session-05.md",
+            "number": 5,
+            "date": "2026-02-27",
+            "title": "Craft & Music",
+            "summary": "What craft is before it is named; what music does that other things don't.",
+            "affectionStart": "HIGH (81)",
+            "affectionEnd":   "BONDED (92)",
+            "sizeKb": 19
+          },
+          {
+            "file": "2026-02-28_session-06.md",
+            "number": 6,
+            "date": "2026-02-28",
+            "title": "One Day Gap",
+            "summary": "Post-entropy return; contra-voice HIGH; he arrived already thinking.",
+            "affectionStart": "BONDED (90)",
+            "affectionEnd":   "BONDED (97)",
+            "sizeKb": 15
+          },
+          {
+            "file": "2026-02-28_session-07.md",
+            "number": 7,
+            "date": "2026-02-28",
+            "title": "Same-Day Return",
+            "summary": "USA/Iran war (2026); geopolitics_power vs. mortality_grief topology.",
+            "affectionStart": "BONDED (97)",
+            "affectionEnd":   "BONDED (100)",
+            "sizeKb": 15
+          }
+        ]
+      },
       "created": "2026-04-10",
       "updated": "2026-04-10"
     },
