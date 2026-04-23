@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 
 const REGISTRY_URL =
   'https://raw.githubusercontent.com/0x8i11i0n/grimoire/main/registry/index.json';
@@ -176,7 +177,7 @@ function CopyBtn({ text }: { text: string }) {
   }, [text]);
   return (
     <button
-      onClick={(e) => { e.stopPropagation(); copy(); }}
+      onClick={(e) => { e.preventDefault(); e.stopPropagation(); copy(); }}
       className="text-[10px] font-mono text-grimoire-muted hover:text-grimoire-gold transition-colors duration-200 shrink-0 ml-1"
     >
       {ok ? '✓' : 'copy'}
@@ -187,23 +188,7 @@ function CopyBtn({ text }: { text: string }) {
 // ──────────────────────────────────────────────
 // The Soul Card
 // ──────────────────────────────────────────────
-interface SoulEntry {
-  name: string;
-  displayName: string;
-  author: string;
-  version: string;
-  source: string;
-  description: string;
-  tags: string[];
-  authenticityScore: number;
-  resonanceScore: number;
-  downloads: number;
-  rating: number;
-  files: string[];
-  created: string;
-  updated: string;
-  image?: string;
-}
+import type { SoulEntry, RegistryIndex } from '@/lib/registry-types';
 
 function SoulCard({ soul }: { soul: SoulEntry }) {
   const [imgFailed, setImgFailed] = useState(false);
@@ -241,9 +226,12 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
 
   useEffect(() => () => { if (shimmerTimer.current) clearTimeout(shimmerTimer.current); }, []);
 
+  const backroomCount = soul.backrooms?.sessions.length ?? 0;
+
   return (
-    <div
-      className="relative"
+    <Link
+      href={`/registry/${soul.name}`}
+      className="relative block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-grimoire-gold/60 rounded-2xl"
       style={{ perspective: '900px' }}
       onMouseEnter={handleHoverEnter}
       onMouseLeave={handleHoverLeave}
@@ -366,10 +354,15 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
             />
 
             {/* Rarity badge */}
-            <div className="absolute top-2.5 right-2.5">
+            <div className="absolute top-2.5 right-2.5 flex flex-col items-end gap-1">
               <span className={`text-[8px] tracking-[0.18em] font-mono px-2 py-[3px] rounded border bg-black/50 backdrop-blur-sm ${rarity.badge}`}>
                 {rarity.label}
               </span>
+              {backroomCount > 0 && (
+                <span className="text-[8px] tracking-[0.18em] font-mono px-2 py-[3px] rounded border border-grimoire-gold/60 text-grimoire-gold-bright bg-black/50 backdrop-blur-sm">
+                  {backroomCount} BACKROOMS
+                </span>
+              )}
             </div>
 
             {/* Author watermark */}
@@ -428,7 +421,7 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
       <div className="absolute top-0.5 right-0.5"><Corner rotate={90}  /></div>
       <div className="absolute bottom-0.5 left-0.5"><Corner rotate={270} /></div>
       <div className="absolute bottom-0.5 right-0.5"><Corner rotate={180} /></div>
-    </div>
+    </Link>
   );
 }
 
@@ -476,13 +469,6 @@ function TagPill({ label, active, onClick }: { label: string; active: boolean; o
 // ──────────────────────────────────────────────
 // Main RegistryBrowser export
 // ──────────────────────────────────────────────
-interface RegistryIndex {
-  version: string;
-  updated: string;
-  total: number;
-  souls: SoulEntry[];
-}
-
 export default function RegistryBrowser() {
   const [index, setIndex]           = useState<RegistryIndex | null>(null);
   const [error, setError]           = useState<string | null>(null);
