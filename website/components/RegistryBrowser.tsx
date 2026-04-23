@@ -103,6 +103,30 @@ function fetchMalImage(soul: SoulEntry): Promise<string | null> {
   return p;
 }
 
+// Wikipedia article title overrides for disambiguation
+const WIKI_TITLE_OVERRIDES: Record<string, string> = {
+  walterwhite: 'Walter White (Breaking Bad)',
+};
+
+async function fetchWikiImage(soul: SoulEntry): Promise<string | null> {
+  const title = WIKI_TITLE_OVERRIDES[soul.name] ?? soul.displayName;
+  try {
+    const res = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
+    );
+    const json = await res.json();
+    return (json?.thumbnail?.source as string | undefined) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function fetchPortrait(soul: SoulEntry): Promise<string | null> {
+  return soul.tags.some(t => ANIME_TAGS.has(t))
+    ? fetchMalImage(soul)
+    : fetchWikiImage(soul);
+}
+
 const RARITY: Record<number, { label: string; border: string; glow: string; badge: string }> = {
   10: {
     label:  'LEGENDARY',
@@ -236,7 +260,7 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
 
   // Fetch live MAL portrait via Jikan; falls back to SVG art while loading
   useEffect(() => {
-    fetchMalImage(soul).then((url) => { if (url) setResolvedImg(url); });
+    fetchPortrait(soul).then((url) => { if (url) setResolvedImg(url); });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // When a new image URL arrives, reset failure and loaded state for fresh attempt
