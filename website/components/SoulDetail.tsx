@@ -8,6 +8,8 @@ import {
   type SoulEntry,
 } from '@/lib/registry-types';
 
+// ── Hardcoded art/palette for the original 12 souls ───────────────────────
+
 const CHAR_ART: Record<string, { symbol: string; sigil: string }> = {
   sungjinwoo:       { symbol: '◈', sigil: 'SHADOW' },
   lelouch:          { symbol: '♟', sigil: 'ZERO' },
@@ -38,26 +40,65 @@ const CHAR_PALETTE: Record<string, readonly [string, string, string]> = {
   georgewashington: ['#080806', '#1a1a14', '#57534e'],
 };
 
-const MAL_QUERIES: Record<string, string> = {
-  sungjinwoo:  'Sung Jinwoo',
-  lelouch:     'Lelouch Lamperouge',
-  lightyagami: 'Light Yagami',
-  gojo:        'Gojo Satoru',
-  edwardelric: 'Edward Elric',
-  roymustang:  'Roy Mustang',
-  itachi:      'Itachi Uchiha',
-  vegeta:      'Vegeta',
-  levi:        'Levi Ackerman',
-  gilgamesh:   'Gilgamesh',
-  diobrando:   'Dio Brando',
+// ── Auto-generation for any new soul ──────────────────────────────────────
+
+const ANIME_TAGS = new Set(['anime', 'manhwa', 'manga']);
+
+function hashName(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0;
+  return Math.abs(h);
+}
+
+const COLOR_THEMES: ReadonlyArray<readonly [string, string, string]> = [
+  ['#07031a', '#2a0f5e', '#c084fc'],
+  ['#0a0a14', '#1e1e3a', '#c4a265'],
+  ['#020b1a', '#0d2d5e', '#1d4ed8'],
+  ['#140800', '#3d1a00', '#b45309'],
+  ['#130303', '#3d0a0a', '#dc2626'],
+  ['#080010', '#1a0030', '#7c3aed'],
+  ['#07080a', '#1a1e24', '#4b5563'],
+  ['#120d00', '#362400', '#ca8a04'],
+  ['#021208', '#0a2e14', '#16a34a'],
+  ['#020d12', '#052a38', '#0891b2'],
+  ['#0d0620', '#4a0e8f', '#6b21a8'],
+  ['#120008', '#3a0020', '#db2777'],
+  ['#080a02', '#1e2508', '#65a30d'],
+  ['#0a0604', '#2e1a0e', '#c2410c'],
+  ['#03060c', '#0c1929', '#0f766e'],
+  ['#08080a', '#18181e', '#6366f1'],
+];
+
+const SYMBOL_SET = ['◈', '✦', '⋆', '◆', '▲', '⊕', '⊗', '⊛', '◉', '⊞', '❋', '✵', '⌬', '⍟', '⊹', '✴'];
+
+function getPalette(name: string): readonly [string, string, string] {
+  return CHAR_PALETTE[name] ?? COLOR_THEMES[hashName(name) % COLOR_THEMES.length];
+}
+
+function getCharArt(soul: SoulEntry): { symbol: string; sigil: string } {
+  if (CHAR_ART[soul.name]) return CHAR_ART[soul.name];
+  const h = hashName(soul.name);
+  return {
+    symbol: SYMBOL_SET[h % SYMBOL_SET.length],
+    sigil: soul.displayName.split(' ')[0].toUpperCase().slice(0, 8),
+  };
+}
+
+// ── Portrait fetching ──────────────────────────────────────────────────────
+
+const MAL_QUERY_OVERRIDES: Record<string, string> = {
+  sungjinwoo: 'Sung Jinwoo',
 };
 
-async function fetchMalImage(name: string): Promise<string | null> {
-  const q = MAL_QUERIES[name];
-  if (!q) return null;
+const WIKI_TITLE_OVERRIDES: Record<string, string> = {
+  walterwhite: 'Walter White (Breaking Bad)',
+};
+
+async function fetchMalImage(soul: SoulEntry): Promise<string | null> {
+  const query = MAL_QUERY_OVERRIDES[soul.name] ?? soul.displayName;
   try {
     const res = await fetch(
-      `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(q)}&limit=1`,
+      `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(query)}&limit=1`,
     );
     const json = await res.json();
     const entry = json?.data?.[0];
@@ -69,6 +110,25 @@ async function fetchMalImage(name: string): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+async function fetchWikiImage(soul: SoulEntry): Promise<string | null> {
+  const title = WIKI_TITLE_OVERRIDES[soul.name] ?? soul.displayName;
+  try {
+    const res = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
+    );
+    const json = await res.json();
+    return (json?.thumbnail?.source as string | undefined) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function fetchPortrait(soul: SoulEntry): Promise<string | null> {
+  return soul.tags.some(t => ANIME_TAGS.has(t))
+    ? fetchMalImage(soul)
+    : fetchWikiImage(soul);
 }
 
 function AffectionChip({ label }: { label: string }) {
@@ -210,16 +270,16 @@ function SessionPanel({
 }
 
 export default function SoulDetail({ soul }: { soul: SoulEntry }) {
-  const palette = CHAR_PALETTE[soul.name] ?? ['#0c0918', '#1a1232', '#3d2a5c'];
-  const art = CHAR_ART[soul.name] ?? { symbol: '◈', sigil: soul.name.toUpperCase() };
+  const palette = getPalette(soul.name);
+  const art = getCharArt(soul);
   const [portrait, setPortrait] = useState<string | null>(null);
   const [imgOk, setImgOk] = useState(false);
 
   useEffect(() => {
-    fetchMalImage(soul.name).then((url) => {
+    fetchPortrait(soul).then((url) => {
       if (url) setPortrait(url);
     });
-  }, [soul.name]);
+  }, [soul.name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const installCmd = `grimoire registry install ${soul.name}`;
 
