@@ -7,6 +7,7 @@ const navLinks = [
   { label: 'Systems', href: '#systems', section: 'systems' },
   { label: 'Compare', href: '#compare', section: 'compare' },
   { label: 'Get Started', href: '#quickstart', section: 'quickstart' },
+  { label: 'Docs', href: '/grimoire/docs', section: null as null },
   { label: 'GrimHub', href: '/grimoire/registry', section: null as null },
   { label: 'Observatory', href: '/grimoire/observatory', section: null as null },
 ];
