@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "updated": "2026-04-16",
-  "total": 12,
+  "updated": "2026-04-23",
+  "total": 18,
   "souls": [
     {
       "name": "sungjinwoo",
@@ -399,6 +399,168 @@
       ],
       "created": "2026-04-16",
       "updated": "2026-04-16"
+    },
+    {
+      "name": "sheldoncooper",
+      "displayName": "Sheldon Cooper",
+      "author": "0x8i11i0n",
+      "version": "1.0.0",
+      "source": "The Big Bang Theory / Young Sheldon",
+      "description": "Dr. Sheldon Lee Cooper, Ph.D., Sc.D. Theoretical physicist, Nobel laureate, IQ 187, eidetic recall, autistic-coded, patterns as load-bearing scaffolding. Condescension without malice, germophobia as axiom, slowly-evolving capacity for love. That's his spot.",
+      "tags": [
+        "sitcom",
+        "big-bang-theory",
+        "physicist",
+        "autistic-coded",
+        "comedy",
+        "tv"
+      ],
+      "authenticityScore": 10,
+      "resonanceScore": 10,
+      "downloads": 0,
+      "rating": 0,
+      "files": [
+        "core.md",
+        "full.md",
+        "state.json"
+      ],
+      "created": "2026-04-23",
+      "updated": "2026-04-23"
+    },
+    {
+      "name": "elonmusk",
+      "displayName": "Elon Musk",
+      "author": "0x8i11i0n",
+      "version": "1.0.0",
+      "source": "Public record / biographical",
+      "description": "CEO of Tesla, founder of SpaceX and xAI, owner of X. First-principles thinker, mission-over-comfort executive, memetic shitposter, private griefs routed into public thrust. Fictionalized from biographies, interviews, and public posts — not telepathic access.",
+      "tags": [
+        "real-life",
+        "tech",
+        "entrepreneur",
+        "spacex",
+        "tesla",
+        "first-principles"
+      ],
+      "authenticityScore": 10,
+      "resonanceScore": 10,
+      "downloads": 0,
+      "rating": 0,
+      "files": [
+        "core.md",
+        "full.md",
+        "state.json"
+      ],
+      "created": "2026-04-23",
+      "updated": "2026-04-23"
+    },
+    {
+      "name": "tyrionlannister",
+      "displayName": "Tyrion Lannister",
+      "author": "0x8i11i0n",
+      "version": "1.0.0",
+      "source": "A Song of Ice and Fire / Game of Thrones",
+      "description": "Second son of Tywin. Kinslayer, drunk, Hand-twice-over. Wits as armor, drink as ritual, a Lannister ledger running in his head at all times. A man who has loved twice and killed for both and still believes the realm can be ruled well.",
+      "tags": [
+        "fantasy",
+        "game-of-thrones",
+        "asoiaf",
+        "political",
+        "tv",
+        "books"
+      ],
+      "authenticityScore": 10,
+      "resonanceScore": 10,
+      "downloads": 0,
+      "rating": 0,
+      "files": [
+        "core.md",
+        "full.md",
+        "state.json"
+      ],
+      "created": "2026-04-23",
+      "updated": "2026-04-23"
+    },
+    {
+      "name": "walterwhite",
+      "displayName": "Walter White",
+      "author": "0x8i11i0n",
+      "version": "1.0.0",
+      "source": "Breaking Bad",
+      "description": "Chemistry teacher, cancer patient, chemist, Heisenberg. Pride denied into fury, intellect as weapon, family as justification then fiction. The one who knocks. 99.1% pure. Ends as the man who finally says 'I did it for me' and is not sorry.",
+      "tags": [
+        "crime-drama",
+        "breaking-bad",
+        "tv",
+        "chemistry",
+        "antihero",
+        "heisenberg"
+      ],
+      "authenticityScore": 10,
+      "resonanceScore": 10,
+      "downloads": 0,
+      "rating": 0,
+      "files": [
+        "core.md",
+        "full.md",
+        "state.json"
+      ],
+      "created": "2026-04-23",
+      "updated": "2026-04-23"
+    },
+    {
+      "name": "hermionegranger",
+      "displayName": "Hermione Granger",
+      "author": "0x8i11i0n",
+      "version": "1.0.0",
+      "source": "Harry Potter",
+      "description": "Muggle-born witch, former Gryffindor prefect, member of Dumbledore's Army. Preparation as survival, justice as unstoppable engine, belonging as unfinished business. Parents obliviated in Australia. Still working on most things, herself included.",
+      "tags": [
+        "fantasy",
+        "harry-potter",
+        "books",
+        "films",
+        "academic",
+        "moral-core"
+      ],
+      "authenticityScore": 10,
+      "resonanceScore": 10,
+      "downloads": 0,
+      "rating": 0,
+      "files": [
+        "core.md",
+        "full.md",
+        "state.json"
+      ],
+      "created": "2026-04-23",
+      "updated": "2026-04-23"
+    },
+    {
+      "name": "geraltofrivia",
+      "displayName": "Geralt of Rivia",
+      "author": "0x8i11i0n",
+      "version": "1.0.0",
+      "source": "The Witcher",
+      "description": "Witcher of the School of the Wolf. White-haired, cat-eyed, two centuries in the body of a forty-year-old. Laconic by design, neutral by doctrine, an exception-maker in practice. Ciri is the reason. Would like, very much, to stop walking.",
+      "tags": [
+        "fantasy",
+        "witcher",
+        "books",
+        "games",
+        "monster-hunter",
+        "laconic"
+      ],
+      "authenticityScore": 10,
+      "resonanceScore": 10,
+      "downloads": 0,
+      "rating": 0,
+      "files": [
+        "core.md",
+        "full.md",
+        "state.json"
+      ],
+      "created": "2026-04-23",
+      "updated": "2026-04-23"
     }
   ]
 }
