@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import type { SoulEntry, RegistryIndex } from '@/lib/registry-types';
 
 const REGISTRY_URL =
   'https://raw.githubusercontent.com/0x8i11i0n/grimoire/main/registry/index.json';
@@ -38,28 +39,50 @@ const CHAR_PALETTE: Record<string, readonly [string, string, string]> = {
   georgewashington: ['#080806', '#1a1a14', '#57534e'],
 };
 
-// MyAnimeList search queries used to fetch live character portraits via Jikan API
-const MAL_QUERIES: Record<string, string> = {
-  lelouch:          'Lelouch Lamperouge',
-  lightyagami:      'Light Yagami',
-  gojo:             'Gojo Satoru',
-  edwardelric:      'Edward Elric',
-  roymustang:       'Roy Mustang',
-  itachi:           'Itachi Uchiha',
-  vegeta:           'Vegeta',
-  levi:             'Levi Ackerman',
-  gilgamesh:        'Gilgamesh',
-  diobrando:        'Dio Brando',
-  sungjinwoo:       'Sung Jinwoo',
+// Overrides for souls whose displayName doesn't match MAL's canonical name
+const MAL_QUERY_OVERRIDES: Record<string, string> = {
+  sungjinwoo: 'Sung Jinwoo',
 };
+
+// Only souls tagged with one of these get a Jikan portrait fetch
+const ANIME_TAGS = new Set(['anime', 'manhwa', 'manga']);
+
+// Deterministic hash so any soul name maps to a stable palette/symbol
+function hashName(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0;
+  return Math.abs(h);
+}
+
+// 16 distinct dark palettes — new souls cycle through these based on name hash
+const COLOR_THEMES: ReadonlyArray<readonly [string, string, string]> = [
+  ['#07031a', '#2a0f5e', '#c084fc'],
+  ['#0a0a14', '#1e1e3a', '#c4a265'],
+  ['#020b1a', '#0d2d5e', '#1d4ed8'],
+  ['#140800', '#3d1a00', '#b45309'],
+  ['#130303', '#3d0a0a', '#dc2626'],
+  ['#080010', '#1a0030', '#7c3aed'],
+  ['#07080a', '#1a1e24', '#4b5563'],
+  ['#120d00', '#362400', '#ca8a04'],
+  ['#021208', '#0a2e14', '#16a34a'],
+  ['#020d12', '#052a38', '#0891b2'],
+  ['#0d0620', '#4a0e8f', '#6b21a8'],
+  ['#120008', '#3a0020', '#db2777'],
+  ['#080a02', '#1e2508', '#65a30d'],
+  ['#0a0604', '#2e1a0e', '#c2410c'],
+  ['#03060c', '#0c1929', '#0f766e'],
+  ['#08080a', '#18181e', '#6366f1'],
+];
+
+const SYMBOL_SET = ['◈', '✦', '⋆', '◆', '▲', '⊕', '⊗', '⊛', '◉', '⊞', '❋', '✵', '⌬', '⍟', '⊹', '✴'];
 
 // Single shared queue — serialises all Jikan requests, one every 420 ms
 // so we stay comfortably under the public 3 req/s rate limit.
 let jikanQueue: Promise<void> = Promise.resolve();
 
-function fetchMalImage(soulName: string): Promise<string | null> {
-  const query = MAL_QUERIES[soulName];
-  if (!query) return Promise.resolve(null);
+function fetchMalImage(soul: SoulEntry): Promise<string | null> {
+  if (!soul.tags.some(t => ANIME_TAGS.has(t))) return Promise.resolve(null);
+  const query = MAL_QUERY_OVERRIDES[soul.name] ?? soul.displayName;
 
   const p: Promise<string | null> = jikanQueue.then(async () => {
     await new Promise<void>((r) => setTimeout(r, 420));
@@ -110,8 +133,17 @@ function getRarity(score: number) {
   };
 }
 
-function getPalette(name: string) {
-  return CHAR_PALETTE[name] ?? ['#0c0918', '#1a1232', '#3d2a5c'] as const;
+function getPalette(name: string): readonly [string, string, string] {
+  return CHAR_PALETTE[name] ?? COLOR_THEMES[hashName(name) % COLOR_THEMES.length];
+}
+
+function getCharArt(soul: SoulEntry): { symbol: string; sigil: string } {
+  if (CHAR_ART[soul.name]) return CHAR_ART[soul.name];
+  const h = hashName(soul.name);
+  return {
+    symbol: SYMBOL_SET[h % SYMBOL_SET.length],
+    sigil: soul.displayName.split(' ')[0].toUpperCase().slice(0, 8),
+  };
 }
 
 // ──────────────────────────────────────────────
@@ -188,7 +220,6 @@ function CopyBtn({ text }: { text: string }) {
 // ──────────────────────────────────────────────
 // The Soul Card
 // ──────────────────────────────────────────────
-import type { SoulEntry, RegistryIndex } from '@/lib/registry-types';
 
 function SoulCard({ soul }: { soul: SoulEntry }) {
   const [imgFailed, setImgFailed] = useState(false);
@@ -205,15 +236,13 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
 
   // Fetch live MAL portrait via Jikan; falls back to SVG art while loading
   useEffect(() => {
-    fetchMalImage(soul.name).then((url) => { if (url) setResolvedImg(url); });
+    fetchMalImage(soul).then((url) => { if (url) setResolvedImg(url); });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // When a new image URL arrives, reset failure and loaded state for fresh attempt
   useEffect(() => { setImgFailed(false); setImgLoaded(false); }, [resolvedImg]);
 
-  const imgSrc = resolvedImg
-    ?? soul.image
-    ?? `https://0x8i11i0n.github.io/grimoire/images/souls/${soul.name}.svg`;
+  const imgSrc = resolvedImg ?? soul.image ?? null;
 
   const handleHoverEnter = () => {
     setHovered(true);
@@ -283,7 +312,7 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
 
             {/* Symbol art — shown as placeholder until portrait loads */}
             {(!imgLoaded || imgFailed) && (() => {
-              const art = CHAR_ART[soul.name] ?? { symbol: '◈', sigil: soul.name.toUpperCase() };
+              const art = getCharArt(soul);
               return (
                 <div className="absolute inset-0 flex flex-col items-center justify-center select-none pointer-events-none overflow-hidden">
                   {/* Large background sigil text */}
@@ -322,7 +351,7 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
               );
             })()}
 
-            {!imgFailed && (
+            {imgSrc && !imgFailed && (
               <img
                 src={imgSrc}
                 alt={soul.displayName}
