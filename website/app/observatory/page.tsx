@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
-import { DEMO_SOULS } from '@/lib/observatory-demo'
+import { loadSoulsFromRegistry } from '@/lib/observatory-demo'
 import type { SoulDetail, AffectionTier } from '@/lib/observatory-types'
 
 // ─── Tier styling ────────────────────────────────────────────────────────────
@@ -474,9 +474,20 @@ function ConnectionBanner({ connected, onTryConnect }: { connected: boolean; onT
 // ─── Observatory Page ─────────────────────────────────────────────────────────
 
 export default function ObservatoryPage() {
-  const [souls, setSouls] = useState<SoulDetail[]>(DEMO_SOULS)
-  const [selected, setSelected] = useState<SoulDetail>(DEMO_SOULS[0])
+  const [souls, setSouls] = useState<SoulDetail[]>([])
+  const [selected, setSelected] = useState<SoulDetail | null>(null)
   const [connected, setConnected] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    loadSoulsFromRegistry()
+      .then((loaded) => {
+        setSouls(loaded)
+        setSelected(loaded[0] ?? null)
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [])
 
   const tryConnect = useCallback(async () => {
     try {
@@ -487,10 +498,9 @@ export default function ObservatoryPage() {
       if (!res.ok) return
       const data: unknown[] = await res.json()
       if (!Array.isArray(data) || data.length === 0) return
-      // Keep demo data structure but note connected state
       setConnected(true)
     } catch {
-      // Stay in demo mode
+      // Stay in registry mode
     }
   }, [])
 
@@ -544,25 +554,39 @@ export default function ObservatoryPage() {
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Sidebar: soul list */}
             <aside className="lg:w-[260px] flex-shrink-0">
-              <p className="text-[10px] font-mono text-grimoire-muted uppercase tracking-widest mb-3 pl-1">
-                {sortedSouls.length} Souls · {sortedSouls.filter(s => s.sessions > 0).length} Active
-              </p>
-              <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
-                {sortedSouls.map((soul) => (
-                  <div key={soul.key} className="min-w-[200px] lg:min-w-0">
-                    <SoulCard
-                      soul={soul}
-                      selected={selected?.key === soul.key}
-                      onClick={() => setSelected(soul)}
-                    />
+              {loading ? (
+                <div className="space-y-2">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="h-[82px] rounded-xl bg-grimoire-surface border border-grimoire-border animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <>
+                  <p className="text-[10px] font-mono text-grimoire-muted uppercase tracking-widest mb-3 pl-1">
+                    {sortedSouls.length} Souls · {sortedSouls.filter(s => s.sessions > 0).length} Active
+                  </p>
+                  <div className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0">
+                    {sortedSouls.map((soul) => (
+                      <div key={soul.key} className="min-w-[200px] lg:min-w-0">
+                        <SoulCard
+                          soul={soul}
+                          selected={selected?.key === soul.key}
+                          onClick={() => setSelected(soul)}
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              )}
             </aside>
 
             {/* Detail panel */}
             <div className="flex-1 min-w-0">
-              {selected ? (
+              {loading ? (
+                <div className="flex items-center justify-center h-64 text-grimoire-muted font-mono text-sm animate-pulse">
+                  Loading soul collection…
+                </div>
+              ) : selected ? (
                 <SoulDetailPanel soul={selected} />
               ) : (
                 <div className="flex items-center justify-center h-64 text-grimoire-muted font-mono text-sm">
