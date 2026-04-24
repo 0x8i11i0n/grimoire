@@ -194,10 +194,47 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Segoe 
 }
 #modal-assoc{margin-top:.8rem;font-size:.68rem;color:var(--muted)}
 
-/* ── LAYOUT SHELL ── */
-body{display:flex;flex-direction:column}
-#hdr{flex-shrink:0}
-#workspace{flex:1;min-height:0}
+/* ── MOBILE TAB BAR ── */
+#mob-tabs{display:none;flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border)}
+.mob-tab{flex:1;padding:.55rem .3rem;font-size:.7rem;font-weight:600;letter-spacing:.04em;text-align:center;cursor:pointer;color:var(--muted);border:none;background:transparent;transition:.15s}
+.mob-tab.active{color:var(--accent);border-bottom:2px solid var(--accent)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  /* header: two-line compact */
+  #hdr{height:auto;flex-wrap:wrap;padding:.5rem .8rem;gap:.4rem}
+  #hdr-name{font-size:1rem}
+  #hdr-sub{font-size:.65rem}
+  #hdr-pills{margin-left:0;width:100%;gap:.3rem}
+  .pill{font-size:.62rem;padding:.15rem .45rem}
+
+  /* show tab bar */
+  #mob-tabs{display:flex}
+
+  /* workspace: stacked */
+  #workspace{flex-direction:column}
+
+  /* panels fill full width, hide by default on mobile */
+  .side{width:100%;height:auto;border-right:none;border-left:none;border-bottom:1px solid var(--border);display:none}
+  .side.mob-active{display:flex}
+
+  /* canvas: full width, fixed height */
+  #canvas-area{height:320px;flex:none;display:none}
+  #canvas-area.mob-active{display:block}
+
+  /* legend: smaller */
+  #legend{bottom:.4rem;left:.4rem;padding:.3rem .5rem;gap:.2rem}
+  .legend-row{font-size:.6rem}
+
+  /* bottom bar: stack vertically */
+  #floor{flex-direction:column;height:auto}
+  #guard-wrap{padding:.5rem .8rem}
+  #residue-wrap{width:100%;border-left:none;border-top:1px solid var(--border);padding:.5rem .8rem}
+
+  /* drift entries: tighter */
+  .dc-entry{margin:.15rem 0}
+  .dc-landing{font-size:.67rem}
+}
 </style>
 </head>
 <body>
@@ -216,6 +253,13 @@ body{display:flex;flex-direction:column}
     <span class="pill pill-gap">55d Since Session</span>
   </div>
 </header>
+
+<!-- MOBILE TAB BAR -->
+<div id="mob-tabs">
+  <button class="mob-tab active" onclick="mobSwitch('brain',this)">&#x1F9E0; Brain</button>
+  <button class="mob-tab" onclick="mobSwitch('drift',this)">&#x1F300; Drift</button>
+  <button class="mob-tab" onclick="mobSwitch('life',this)">&#x2728; Inner Life</button>
+</div>
 
 <!-- WORKSPACE -->
 <div id="workspace">
@@ -600,6 +644,43 @@ buildDrift();
     <div class="res-bar"><div class="res-fill ${r.fill}" style="width:${r.intensity*100}%"></div></div>
     <div style="font-size:.63rem;color:#4a3560;font-style:italic">${r.texture}</div>
   </div>`).join('')+`<div class="res-dissipated" style="margin-top:.6rem;padding-top:.5rem;border-top:1px solid #1a1030"><span style="font-size:.62rem;color:#3a2a4a">Dissipated:</span><br>${SOUL.dissipated.join('<br>')}</div>`;
+})();
+
+/* ── MOBILE TAB SWITCHER ── */
+function mobSwitch(tab, btn){
+  // update tab buttons
+  document.querySelectorAll('.mob-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  // map: brain=canvas-area, drift=left side, life=right side
+  const ca=document.getElementById('canvas-area');
+  const ls=document.querySelector('.side.left');
+  const rs=document.querySelector('.side.right');
+  ca.classList.remove('mob-active');
+  ls.classList.remove('mob-active');
+  rs.classList.remove('mob-active');
+  if(tab==='brain'){ca.classList.add('mob-active');resize();}
+  else if(tab==='drift'){ls.classList.add('mob-active');}
+  else if(tab==='life'){rs.classList.add('mob-active');}
+}
+// init mobile: show brain tab by default
+(function initMob(){
+  const mq=window.matchMedia('(max-width:700px)');
+  function apply(m){
+    const ca=document.getElementById('canvas-area');
+    if(m.matches){
+      // activate brain tab on first entry
+      if(!ca.classList.contains('mob-active')&&
+         !document.querySelector('.side.mob-active')){
+        ca.classList.add('mob-active');
+      }
+    }else{
+      // desktop: remove mob-active from everything (CSS handles visibility)
+      ca.classList.remove('mob-active');
+      document.querySelectorAll('.side').forEach(s=>s.classList.remove('mob-active'));
+    }
+  }
+  apply(mq);
+  mq.addEventListener('change',apply);
 })();
 </script>
 </body>
