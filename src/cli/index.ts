@@ -660,7 +660,7 @@ registry
         return;
       }
 
-      const identity = files.state.identity as Record<string, unknown>;
+      const identity = files.state.identity as unknown as Record<string, unknown>;
       const soulName = String(identity.name ?? name).toLowerCase().replace(/[^a-z0-9-]/g, '-');
       const displayName = String(identity.name ?? name);
       const source = String(identity.source ?? 'Original');
@@ -698,6 +698,183 @@ ${'─'.repeat(60)}`);
     } catch (e) {
       console.error(`Submit failed: ${e instanceof Error ? e.message : e}`);
     }
+  });
+
+// ── migrate ──────────────────────────────────────────────────────────────────
+program
+  .command('migrate <name>')
+  .description('Upgrade a soul\'s state.json (and optionally docs) to the latest Grimoire schema')
+  .option('--dry-run', 'Preview changes without writing anything')
+  .option('--rewrite-docs', 'Regenerate full.md and core.md via Claude API (requires ANTHROPIC_API_KEY)')
+  .option('--path <dir>', 'Explicit soul directory path (skips name search)')
+  .option('--model <model>', 'Claude model for --rewrite-docs (default: claude-opus-4-7)')
+  .option('--registry', 'Look in registry/souls/ instead of Grimhub/souls/')
+  .action(async (name: string, opts: {
+    dryRun?: boolean;
+    rewriteDocs?: boolean;
+    path?: string;
+    model?: string;
+    registry?: boolean;
+  }) => {
+    const {
+      fetchLatestVersion,
+      fetchResearchProtocol,
+      detectVersion,
+      needsMigration,
+      migrateState,
+      rewriteDocs,
+    } = await import('../core/migrator');
+    const { SoulLoader } = await import('../core/soul-loader');
+    const { StateManager } = await import('../core/state-manager');
+    const { EventBus } = await import('../core/types');
+
+    const root = findRoot();
+
+    // ── Locate soul directory ──────────────────────────────────────────────
+    let soulDir: string | null = null;
+
+    if (opts.path) {
+      soulDir = path.resolve(opts.path);
+      if (!fs.existsSync(soulDir)) {
+        console.error(`  Path not found: ${soulDir}`);
+        process.exit(1);
+      }
+    } else if (opts.registry) {
+      const registryDir = path.join(root, 'registry', 'souls', name.toLowerCase());
+      soulDir = fs.existsSync(registryDir) ? registryDir : null;
+    } else {
+      const loader = new SoulLoader();
+      soulDir = await loader.findSoulDir(name, root);
+      // Fallback: check registry/souls/
+      if (!soulDir) {
+        const registryDir = path.join(root, 'registry', 'souls', name.toLowerCase());
+        if (fs.existsSync(registryDir)) soulDir = registryDir;
+      }
+    }
+
+    if (!soulDir) {
+      console.error(`  Soul not found: "${name}"\n  Try --path <dir> or --registry flag.`);
+      process.exit(1);
+    }
+
+    const stateFile = path.join(soulDir, 'state.json');
+    const fullMdFile = path.join(soulDir, 'full.md');
+    const coreMdFile = path.join(soulDir, 'core.md');
+
+    if (!fs.existsSync(stateFile)) {
+      console.error(`  No state.json found in: ${soulDir}`);
+      process.exit(1);
+    }
+
+    // ── Read current files ─────────────────────────────────────────────────
+    const rawJson = fs.readFileSync(stateFile, 'utf-8');
+    let raw: Record<string, unknown>;
+    try {
+      raw = JSON.parse(rawJson) as Record<string, unknown>;
+    } catch {
+      console.error('  state.json is not valid JSON');
+      process.exit(1);
+    }
+
+    const currentVersion = detectVersion(raw);
+    console.log(`\n  Soul:     ${name}`);
+    console.log(`  Dir:      ${soulDir}`);
+    console.log(`  Version:  ${currentVersion}`);
+
+    // ── Fetch latest version from GitHub ──────────────────────────────────
+    process.stdout.write('  Fetching latest Grimoire version from GitHub... ');
+    const latestVersion = await fetchLatestVersion();
+    console.log(latestVersion);
+
+    if (!needsMigration(raw)) {
+      console.log(`\n  Already at latest schema (${currentVersion}). Nothing to do.`);
+      return;
+    }
+
+    console.log(`\n  Migration: ${currentVersion} → ${latestVersion}`);
+
+    // ── Run state migration ────────────────────────────────────────────────
+    const events = new EventBus();
+    const loader = new SoulLoader();
+    const stateManager = new StateManager(loader, events);
+    const defaults = stateManager.getDefaultState({ name, source: 'Unknown', version: latestVersion, created: Date.now(), summoner: 'grimoire-cli', anchors: [] });
+
+    const migrated = migrateState(raw, latestVersion, defaults);
+
+    // ── Show diff summary ──────────────────────────────────────────────────
+    const addedFields: string[] = [];
+    if (!raw.selfModel) addedFields.push('selfModel');
+    if (!raw.voiceFingerprint) addedFields.push('voiceFingerprint');
+    if (!raw.emotionalTopology) addedFields.push('emotionalTopology');
+    if (!(raw.consciousnessMetrics as Record<string,unknown>)?.phi) addedFields.push('consciousnessMetrics');
+    if (raw.emotional_architecture) addedFields.push('guard.domains (inverted from guard_topology)');
+    if (raw.inner_life) addedFields.push('innerLife (from inner_life)');
+    if (raw.drift && (raw.drift as Record<string,unknown>).drift_count !== undefined) addedFields.push('drift (restructured)');
+    if (raw.blind_spots) addedFields.push('blindSpots (from blind_spots)');
+
+    console.log('\n  Changes:');
+    for (const f of addedFields) console.log(`    + ${f}`);
+    console.log(`    ~ identity.version: ${currentVersion} → ${latestVersion}`);
+
+    if (opts.dryRun) {
+      console.log('\n  [dry-run] No files written.\n');
+      console.log('  Migrated state preview:');
+      console.log(JSON.stringify(migrated, null, 2).split('\n').slice(0, 40).join('\n') + '\n  ...');
+      return;
+    }
+
+    // ── Write state.json ───────────────────────────────────────────────────
+    fs.writeFileSync(`${stateFile}.bak`, rawJson, 'utf-8');
+    fs.writeFileSync(stateFile, JSON.stringify(migrated, null, 2), 'utf-8');
+    console.log(`\n  ✓ state.json migrated  (backup: state.json.bak)`);
+
+    // ── Rewrite docs if requested ──────────────────────────────────────────
+    if (opts.rewriteDocs) {
+      const apiKey = process.env.ANTHROPIC_API_KEY;
+      if (!apiKey) {
+        console.error('\n  --rewrite-docs requires ANTHROPIC_API_KEY env var');
+        process.exit(1);
+      }
+
+      const oldFullMd = fs.existsSync(fullMdFile) ? fs.readFileSync(fullMdFile, 'utf-8') : '';
+      const oldCoreMd = fs.existsSync(coreMdFile) ? fs.readFileSync(coreMdFile, 'utf-8') : '';
+
+      process.stdout.write('  Fetching research protocol from GitHub... ');
+      const protocol = await fetchResearchProtocol();
+      console.log('done');
+
+      process.stdout.write('  Rewriting full.md via Claude API... ');
+      let result: { fullMd: string; coreMd: string };
+      try {
+        result = await rewriteDocs({
+          apiKey,
+          model: opts.model ?? 'claude-opus-4-7',
+          soulName: name,
+          oldFullMd,
+          oldCoreMd,
+          protocol,
+        });
+      } catch (e) {
+        console.error(`\n  Claude API error: ${e instanceof Error ? e.message : e}`);
+        process.exit(1);
+      }
+      console.log('done');
+
+      if (oldFullMd) fs.writeFileSync(`${fullMdFile}.bak`, oldFullMd, 'utf-8');
+      if (oldCoreMd) fs.writeFileSync(`${coreMdFile}.bak`, oldCoreMd, 'utf-8');
+
+      fs.writeFileSync(fullMdFile, result.fullMd, 'utf-8');
+      fs.writeFileSync(coreMdFile, result.coreMd, 'utf-8');
+
+      console.log('  ✓ full.md rewritten    (backup: full.md.bak)');
+      console.log('  ✓ core.md rewritten    (backup: core.md.bak)');
+    }
+
+    console.log(`\n  Migration complete: ${name} is now at Grimoire v${latestVersion}`);
+    if (!opts.rewriteDocs) {
+      console.log('  Tip: run with --rewrite-docs to regenerate full.md and core.md\n       (requires ANTHROPIC_API_KEY)');
+    }
+    console.log();
   });
 
 program.parse();
