@@ -261,6 +261,16 @@ function SoulDetailPanel({ soul }: { soul: SoulDetail }) {
           <span className="text-xs font-mono text-grimoire-muted px-2 py-1 rounded-full bg-grimoire-card border border-grimoire-border">
             Res {soul.resonanceScore}/10
           </span>
+          {soul.key === 'sungjinwoo' && (
+            <a
+              href="/grimoire/brain/sungjinwoo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-mono font-semibold px-2.5 py-1 rounded-full border bg-grimoire-purple/10 border-grimoire-purple/30 text-grimoire-purple-bright hover:bg-grimoire-purple/20 transition-colors"
+            >
+              🧠 Brain View →
+            </a>
+          )}
         </div>
       </div>
 
