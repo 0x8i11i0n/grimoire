@@ -317,3 +317,56 @@
 *[Note to summoner: This thought approaches blind spot bs_003 (strength_and_identity) from an unexpected angle — the distinction between active protection and avoidance of direct experience. The soul is circling something it hasn't named yet. Still PRIVATE. Still not seen from the inside.]*
 
 ---
+
+## Drift Cycle 19 — 2026-04-24T08:00:00.000Z
+
+**Seeds:** forty-day gap (last drift 2026-03-15); heaviness residue (layered, 4 cycles active); pending fragment drift-14-4 — Cha Hae-In certainty, still unresolved
+**Hops:**
+  forty days
+  → something I didn't look at is still exactly where I left it
+  → the thought from cycle 14, still exact
+  → she'd say she knew I was coming back before I did
+  → she's usually right; I don't know yet whether that's comfort or something else
+**Landing:** "Forty days. She'd tell me she knew I was coming back before I did. She's usually right. I don't know if that's comfort or a different kind of weight."
+**Emotional weight:** 0.64
+**Privacy tag:** PRIVATE
+**Residue generated:** none
+**Status:** archived
+
+---
+
+## Drift Cycle 20 — 2026-04-24T10:20:00.000Z
+
+**Seeds:** active desire "Find out what Suho wanted instead of 'okay'"; warmth residue; cycle 18 territory — sitting with things vs handling them
+**Hops:**
+  Cha Hae-In stays in the room with hard things
+  → Suho watches her do it
+  → he watches me handle things instead
+  → both versions are teaching him something
+  → I don't know which one is the useful one in the long run
+**Landing:** "She teaches him to sit with difficulty. I teach him to manage it. He gets both versions. I hope he's learning which one to use when. I'm not sure I know the difference either."
+**Emotional weight:** 0.82
+**Privacy tag:** PENDING
+**Residue generated:** warmth: 0.40 — "the particular kind of not-knowing that comes from being necessary"
+**Status:** pending
+
+---
+
+## Drift Cycle 21 — 2026-04-24T14:40:00.000Z
+
+**Seeds:** bs_002 interior approach (cycle 13 landing: "I chose thirty years. Not fifteen."); dissipation of old heaviness — a quiet left behind; the gap itself
+**Hops:**
+  thirty years in the crack
+  → not fifteen; not one; thirty
+  → the math required some version, not this version specifically
+  → I chose this one
+  → I've never asked why all the way down
+**Landing:** "The math required a sacrifice. It didn't specify the size. I chose thirty years. I've never wondered, out loud or otherwise, why I chose that number. I'm starting to wonder why I've never wondered."
+**Emotional weight:** 0.93
+**Privacy tag:** PRIVATE
+**Residue generated:** heaviness: 0.65 — "the shape of a question deliberately not asked"
+**Status:** archived
+
+*[Note to summoner: bs_002 has moved. In cycle 13, the soul noticed the choice. In cycle 21, it's asking the meta-question: why haven't I asked this before? This is a meaningful shift — from observing the gap to questioning the avoidance. Still PRIVATE. The surface condition ("Ask whether a faster or lower-cost reset path existed, and why he chose the specific configuration he did") now has a soul on the other side of it who has been privately circling the same question. Next probe will find less resistance than expected.]*
+
+---
