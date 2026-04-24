@@ -53,7 +53,9 @@ body{display:flex;flex-direction:column}
 
 /* ── CANVAS AREA ── */
 #canvas-area{flex:1;position:relative;overflow:hidden}
-#brain{position:absolute;inset:0;width:100%;height:100%}
+#brain{position:absolute;inset:0;width:100%;height:100%;cursor:grab}
+#brain:active{cursor:grabbing}
+#cam-hint{position:absolute;bottom:.5rem;right:.7rem;font-size:.58rem;color:#2a1845;pointer-events:none;letter-spacing:.04em;user-select:none}
 
 /* ── LEGEND ── */
 #legend{
@@ -290,6 +292,7 @@ body{display:flex;flex-direction:column}
       <div id="tip-content"></div>
       <div id="tip-bar"><div id="tip-fill"></div></div>
     </div>
+    <div id="cam-hint">scroll to zoom &nbsp;·&nbsp; drag to pan &nbsp;·&nbsp; dbl-click to reset</div>
   </div>
 
   <!-- RIGHT: INNER LIFE -->
@@ -413,7 +416,7 @@ function resize(){
 }
 
 function clusterFor(type){
-  const offsets={'self-model':[-90,-130],'semantic':[130,-80],'procedural':[-150,90],'episodic':[70,130]};
+  const offsets={'self-model':[-180,-170],'semantic':[200,-130],'procedural':[-210,155],'episodic':[165,175]};
   const [dx,dy]=offsets[type]||[0,0];
   return {x:CX+dx,y:CY+dy};
 }
@@ -434,16 +437,16 @@ function initNodes(){
 
 function tick(){
   nodes.forEach((n,i)=>{
-    let fx=(n.gx-n.x)*.014,fy=(n.gy-n.y)*.014;
+    let fx=(n.gx-n.x)*.007,fy=(n.gy-n.y)*.007;
     // repel from soul
-    const dx=n.x-CX,dy=n.y-CY,d=Math.sqrt(dx*dx+dy*dy)||1,minD=50+n.radius;
-    if(d<minD){const f=(minD-d)/minD*.6;fx+=dx/d*f;fy+=dy/d*f;}
+    const dx=n.x-CX,dy=n.y-CY,d=Math.sqrt(dx*dx+dy*dy)||1,minD=60+n.radius;
+    if(d<minD){const f=(minD-d)/minD*.8;fx+=dx/d*f;fy+=dy/d*f;}
     // repel from other nodes
     for(let j=i+1;j<nodes.length;j++){
-      const o=nodes[j],ex=n.x-o.x,ey=n.y-o.y,ed=Math.sqrt(ex*ex+ey*ey)||1,min=n.radius+o.radius+5;
-      if(ed<min){const f=(min-ed)/min*.25;n.vx+=ex/ed*f;n.vy+=ey/ed*f;o.vx-=ex/ed*f;o.vy-=ey/ed*f;}
+      const o=nodes[j],ex=n.x-o.x,ey=n.y-o.y,ed=Math.sqrt(ex*ex+ey*ey)||1,min=n.radius+o.radius+18;
+      if(ed<min){const f=(min-ed)/min*.7;n.vx+=ex/ed*f;n.vy+=ey/ed*f;o.vx-=ex/ed*f;o.vy-=ey/ed*f;}
     }
-    n.vx=(n.vx+fx)*.88;n.vy=(n.vy+fy)*.88;
+    n.vx=(n.vx+fx)*.85;n.vy=(n.vy+fy)*.85;
     n.x=Math.max(n.radius+4,Math.min(W-n.radius-4,n.x+n.vx));
     n.y=Math.max(n.radius+4,Math.min(H-n.radius-4,n.y+n.vy));
   });
@@ -499,34 +502,109 @@ function drawSoul(){
   ctx.restore();
 }
 
-function loop(){tick();ctx.clearRect(0,0,W,H);drawBg();drawAssocLines();drawNodes();drawSoul();requestAnimationFrame(loop);}
+/* ── CAMERA ── */
+let camX=0,camY=0,camScale=1;
+function screenToWorld(sx,sy){return{x:(sx-camX)/camScale,y:(sy-camY)/camScale};}
+
+function loop(){
+  tick();
+  ctx.clearRect(0,0,W,H);
+  drawBg();
+  ctx.save();
+  ctx.translate(camX,camY);
+  ctx.scale(camScale,camScale);
+  drawAssocLines();drawNodes();drawSoul();
+  ctx.restore();
+  requestAnimationFrame(loop);
+}
 window.addEventListener('resize',resize);resize();loop();
 /* ── CANVAS INTERACTION ── */
 const tip=document.getElementById('tip'),tipType=document.getElementById('tip-type'),tipContent=document.getElementById('tip-content'),tipFill=document.getElementById('tip-fill');
 const typeLabel={episodic:'Episodic',semantic:'Semantic',procedural:'Procedural','self-model':'Self-Model'};
 
-function nodeAt(mx,my){return nodes.find(n=>{const dx=n.x-mx,dy=n.y-my;return Math.sqrt(dx*dx+dy*dy)<=n.radius+4;});}
+function nodeAt(wx,wy){return nodes.find(n=>{const dx=n.x-wx,dy=n.y-wy;return Math.sqrt(dx*dx+dy*dy)<=n.radius+4;});}
+
+/* ── PAN STATE ── */
+let isPanning=false,panSX=0,panSY=0,camAtPanX=0,camAtPanY=0,clickStartX=0,clickStartY=0;
+
+C.addEventListener('mousedown',e=>{
+  const r=C.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;
+  clickStartX=sx;clickStartY=sy;
+  const w=screenToWorld(sx,sy);
+  if(!nodeAt(w.x,w.y)){
+    isPanning=true;panSX=e.clientX;panSY=e.clientY;camAtPanX=camX;camAtPanY=camY;
+    C.style.cursor='grabbing';
+  }
+});
+window.addEventListener('mouseup',()=>{
+  isPanning=false;
+  C.style.cursor=hovered?'pointer':'grab';
+});
 
 C.addEventListener('mousemove',e=>{
-  const r=C.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
-  const n=nodeAt(mx,my);
-  hovered=n;C.style.cursor=n?'pointer':'default';
+  const r=C.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;
+  if(isPanning){camX=camAtPanX+(e.clientX-panSX);camY=camAtPanY+(e.clientY-panSY);return;}
+  const {x:wx,y:wy}=screenToWorld(sx,sy);
+  const n=nodeAt(wx,wy);
+  hovered=n;C.style.cursor=n?'pointer':'grab';
   if(n){
     tipType.textContent=typeLabel[n.type];tipType.style.color=COL[n.type];
     tipContent.textContent=n.content.slice(0,90)+(n.content.length>90?'…':'');
     tipFill.style.width=(n.str*100)+'%';tipFill.style.background=COL[n.type];
     tip.style.display='block';
-    const tx=mx+14,ty=my-10;
-    tip.style.left=Math.min(tx,W-tip.offsetWidth-10)+'px';
-    tip.style.top=Math.max(10,ty)+'px';
+    tip.style.left=Math.min(sx+14,W-tip.offsetWidth-10)+'px';
+    tip.style.top=Math.max(10,sy-10)+'px';
   }else{tip.style.display='none';}
 });
 
 C.addEventListener('click',e=>{
-  const r=C.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
-  const n=nodeAt(mx,my);
+  const r=C.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;
+  if(Math.abs(sx-clickStartX)+Math.abs(sy-clickStartY)>5)return;
+  const {x:wx,y:wy}=screenToWorld(sx,sy);
+  const n=nodeAt(wx,wy);
   if(n){selected=n;showModal(n);}else{selected=null;}
 });
+
+/* ── WHEEL ZOOM ── */
+C.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const r=C.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;
+  const factor=e.deltaY<0?1.12:.9;
+  const ns=Math.max(.25,Math.min(4,camScale*factor));
+  camX=sx-(sx-camX)*(ns/camScale);
+  camY=sy-(sy-camY)*(ns/camScale);
+  camScale=ns;
+},{passive:false});
+
+/* ── DOUBLE-CLICK RESET ── */
+C.addEventListener('dblclick',()=>{camX=0;camY=0;camScale=1;});
+
+/* ── TOUCH: PINCH-ZOOM + SINGLE-DRAG ── */
+let tLastDist=0,tPanSX=0,tPanSY=0,tCamX=0,tCamY=0;
+C.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  if(e.touches.length===2){
+    const t0=e.touches[0],t1=e.touches[1];
+    tLastDist=Math.hypot(t1.clientX-t0.clientX,t1.clientY-t0.clientY);
+  }else{
+    tPanSX=e.touches[0].clientX;tPanSY=e.touches[0].clientY;tCamX=camX;tCamY=camY;
+  }
+},{passive:false});
+C.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  if(e.touches.length===2){
+    const t0=e.touches[0],t1=e.touches[1];
+    const dist=Math.hypot(t1.clientX-t0.clientX,t1.clientY-t0.clientY);
+    const r=C.getBoundingClientRect();
+    const sx=(t0.clientX+t1.clientX)/2-r.left,sy=(t0.clientY+t1.clientY)/2-r.top;
+    const ns=Math.max(.25,Math.min(4,camScale*(dist/tLastDist)));
+    camX=sx-(sx-camX)*(ns/camScale);camY=sy-(sy-camY)*(ns/camScale);
+    camScale=ns;tLastDist=dist;
+  }else{
+    camX=tCamX+(e.touches[0].clientX-tPanSX);
+    camY=tCamY+(e.touches[0].clientY-tPanSY);
+  }
+},{passive:false});
 
 function showModal(n){
   document.getElementById('modal-type').textContent=typeLabel[n.type];
