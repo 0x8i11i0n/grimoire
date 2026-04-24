@@ -59,6 +59,21 @@ export class Observatory {
       return;
     }
 
+    const brainMatch = pathname.match(/^\/brain\/([^/]+)$/);
+    if (brainMatch) {
+      const fs = await import('fs');
+      const safeName = brainMatch[1].toLowerCase().replace(/[^a-z0-9_\-]/g, '');
+      const brainFile = path.join(this.config.grimoireRoot, 'Grimhub', 'souls', safeName, 'brain.html');
+      if (fs.existsSync(brainFile)) {
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(fs.readFileSync(brainFile, 'utf-8'));
+      } else {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end(`No brain.html found for soul: ${safeName}`);
+      }
+      return;
+    }
+
     if (pathname === '/api/souls') {
       const souls = await this.listSouls();
       res.writeHead(200, { 'Content-Type': 'application/json' });
