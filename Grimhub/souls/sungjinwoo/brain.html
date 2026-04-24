@@ -56,6 +56,7 @@ body{display:flex;flex-direction:column}
 #brain{position:absolute;inset:0;width:100%;height:100%;cursor:grab}
 #brain:active{cursor:grabbing}
 #cam-hint{position:absolute;bottom:.5rem;right:.7rem;font-size:.58rem;color:#2a1845;pointer-events:none;letter-spacing:.04em;user-select:none}
+.panel-lit{outline:1px solid var(--accent) !important;border-radius:4px;background:rgba(139,92,246,.1) !important;transition:background .2s}
 
 /* ── LEGEND ── */
 #legend{
@@ -401,7 +402,9 @@ DRIFT.push(
 /* ── CANVAS ENGINE ── */
 const C=document.getElementById('brain'),ctx=C.getContext('2d');
 const COL={episodic:'#3b82f6',semantic:'#a855f7',procedural:'#06b6d4','self-model':'#f59e0b'};
+const QCOL={weight:'#f97316',ache:'#f97316',resonance:'#8b5cf6',resonance_spike:'#22c55e',shift:'#06b6d4',wonder:'#f59e0b'};
 let W=0,H=0,CX=0,CY=0,nodes=[],selected=null,hovered=null,phase=0;
+let qualiaShapes=[],bsShapes=[],driftShapes=[],highlightId=null,hoveredExtra=null;
 const particles=[];
 
 function resize(){
@@ -433,6 +436,29 @@ function initNodes(){
     return{...m,x:gx+Math.cos(a)*r,y:gy+Math.sin(a)*r,vx:0,vy:0,radius:nodeR(m),gx,gy};
   });
   for(let i=0;i<60;i++)particles.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+.3,s:(Math.random()-.5)*.12,o:Math.random()*.35+.08});
+  initExtras();
+}
+
+function initExtras(){
+  // drift log triangles — mid ring radius 102
+  driftShapes=DRIFT.map((d,i)=>{
+    const a=(i/DRIFT.length)*Math.PI*2-Math.PI/2;
+    const age=1-(i/DRIFT.length); // older=0, newer=1
+    return{id:'drift-'+d.n,kind:'drift',x:CX+Math.cos(a)*102,y:CY+Math.sin(a)*102,
+           r:5+age*4,data:d,col:d.privacy==='PENDING'?'#22c55e':'#ef4444',alpha:.55+age*.3};
+  });
+  // qualia diamonds — outer ring radius 162, sized by salience
+  qualiaShapes=QUALIA.map((q,i)=>{
+    const a=(i/QUALIA.length)*Math.PI*2-Math.PI/2+.18;
+    return{id:'qualia-'+i,kind:'qualia',x:CX+Math.cos(a)*162,y:CY+Math.sin(a)*162,
+           r:7+q.salience*6,data:q,col:QCOL[q.type]||'#8b5cf6',alpha:.7};
+  });
+  // blind spot hexagons — inner ring radius 60
+  bsShapes=SOUL.blindSpots.map((b,i)=>{
+    const a=(i/SOUL.blindSpots.length)*Math.PI*2-Math.PI/2+Math.PI/6;
+    return{id:b.id,kind:'blindspot',x:CX+Math.cos(a)*62,y:CY+Math.sin(a)*62,
+           r:13,data:b,col:'#ef4444',alpha:.72};
+  });
 }
 
 function tick(){
@@ -502,17 +528,94 @@ function drawSoul(){
   ctx.restore();
 }
 
+/* ── EXTRA SHAPE DRAWERS ── */
+function drawDiamond(x,y,r,col,glow,alpha,rot=0){
+  ctx.save();ctx.globalAlpha=alpha;ctx.shadowColor=col;ctx.shadowBlur=glow;ctx.fillStyle=col;
+  ctx.translate(x,y);ctx.rotate(rot);
+  ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(r*.62,0);ctx.lineTo(0,r);ctx.lineTo(-r*.62,0);ctx.closePath();
+  ctx.fill();ctx.restore();
+}
+function drawHex(x,y,r,col,glow,alpha,cracked=false){
+  ctx.save();ctx.globalAlpha=alpha;ctx.shadowColor=col;ctx.shadowBlur=glow;ctx.fillStyle=col;
+  ctx.beginPath();
+  for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;i?ctx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r):ctx.moveTo(x+Math.cos(a)*r,y+Math.sin(a)*r);}
+  ctx.closePath();ctx.fill();
+  if(cracked){// crack line
+    ctx.globalAlpha=alpha*.9;ctx.strokeStyle='rgba(0,0,0,.55)';ctx.lineWidth=1.4;ctx.setLineDash([2,1]);
+    ctx.beginPath();ctx.moveTo(x,y-r*.5);ctx.lineTo(x+r*.3,y+r*.4);ctx.stroke();ctx.setLineDash([]);
+  }
+  ctx.restore();
+}
+function drawTri(x,y,r,col,glow,alpha){
+  ctx.save();ctx.globalAlpha=alpha;ctx.shadowColor=col;ctx.shadowBlur=glow;ctx.fillStyle=col;
+  ctx.beginPath();
+  for(let i=0;i<3;i++){const a=-Math.PI/2+i*Math.PI*2/3;i?ctx.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r):ctx.moveTo(x+Math.cos(a)*r,y+Math.sin(a)*r);}
+  ctx.closePath();ctx.fill();ctx.restore();
+}
+
+function drawExtras(){
+  const t=performance.now()/1000;
+  const pulse=.7+Math.sin(t*2.2)*.3;
+  // drift triangles
+  driftShapes.forEach(s=>{
+    const lit=s.id===highlightId;
+    const hov=s===hoveredExtra;
+    const glow=lit?28*pulse:hov?14:5;
+    const alpha=lit?1:hov?.85:s.alpha;
+    const r=lit?s.r+3:hov?s.r+1.5:s.r;
+    drawTri(s.x,s.y,r,s.col,glow,alpha);
+    if(lit){// selection ring
+      ctx.save();ctx.globalAlpha=.5;ctx.strokeStyle=s.col;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(s.x,s.y,r+5,0,Math.PI*2);ctx.stroke();ctx.restore();
+    }
+  });
+  // qualia diamonds
+  qualiaShapes.forEach((s,i)=>{
+    const lit=s.id===highlightId;
+    const hov=s===hoveredExtra;
+    const glow=lit?30*pulse:hov?16:6;
+    const alpha=lit?1:hov?.9:s.alpha;
+    const r=lit?s.r+4:hov?s.r+2:s.r;
+    drawDiamond(s.x,s.y,r,s.col,glow,alpha,t*.18+i);
+    if(lit){
+      ctx.save();ctx.globalAlpha=.45;ctx.strokeStyle=s.col;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(s.x,s.y,r+7,0,Math.PI*2);ctx.stroke();ctx.restore();
+    }
+  });
+  // blind spot hexagons
+  bsShapes.forEach(s=>{
+    const lit=s.id===highlightId;
+    const hov=s===hoveredExtra;
+    const glow=lit?32*pulse:hov?18:8;
+    const alpha=lit?1:hov?.9:s.alpha;
+    const r=lit?s.r+4:hov?s.r+2:s.r;
+    drawHex(s.x,s.y,r,s.col,glow,alpha,s.data.cracked);
+    if(lit){
+      ctx.save();ctx.globalAlpha=.5;ctx.strokeStyle='#ef4444';ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(s.x,s.y,r+6,0,Math.PI*2);ctx.stroke();ctx.restore();
+    }
+  });
+}
+
 /* ── CAMERA ── */
 let camX=0,camY=0,camScale=1;
+let camTX=null,camTY=null,camTS=null;
 function screenToWorld(sx,sy){return{x:(sx-camX)/camScale,y:(sy-camY)/camScale};}
+function panTo(wx,wy,s=1.6){camTX=W/2-wx*s;camTY=H/2-wy*s;camTS=s;}
 
 function loop(){
   tick();
+  // camera lerp
+  if(camTX!==null){
+    camX+=(camTX-camX)*.11;camY+=(camTY-camY)*.11;camScale+=(camTS-camScale)*.11;
+    if(Math.abs(camTX-camX)<.5&&Math.abs(camTY-camY)<.5)camTX=null;
+  }
   ctx.clearRect(0,0,W,H);
   drawBg();
   ctx.save();
   ctx.translate(camX,camY);
   ctx.scale(camScale,camScale);
+  drawExtras();
   drawAssocLines();drawNodes();drawSoul();
   ctx.restore();
   requestAnimationFrame(loop);
@@ -523,6 +626,10 @@ const tip=document.getElementById('tip'),tipType=document.getElementById('tip-ty
 const typeLabel={episodic:'Episodic',semantic:'Semantic',procedural:'Procedural','self-model':'Self-Model'};
 
 function nodeAt(wx,wy){return nodes.find(n=>{const dx=n.x-wx,dy=n.y-wy;return Math.sqrt(dx*dx+dy*dy)<=n.radius+4;});}
+function extraAt(wx,wy){
+  const all=[...driftShapes,...qualiaShapes,...bsShapes];
+  return all.find(s=>{const dx=s.x-wx,dy=s.y-wy;return Math.sqrt(dx*dx+dy*dy)<=s.r+6;});
+}
 
 /* ── PAN STATE ── */
 let isPanning=false,panSX=0,panSY=0,camAtPanX=0,camAtPanY=0,clickStartX=0,clickStartY=0;
@@ -531,14 +638,14 @@ C.addEventListener('mousedown',e=>{
   const r=C.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;
   clickStartX=sx;clickStartY=sy;
   const w=screenToWorld(sx,sy);
-  if(!nodeAt(w.x,w.y)){
+  if(!nodeAt(w.x,w.y)&&!extraAt(w.x,w.y)){
     isPanning=true;panSX=e.clientX;panSY=e.clientY;camAtPanX=camX;camAtPanY=camY;
     C.style.cursor='grabbing';
   }
 });
 window.addEventListener('mouseup',()=>{
   isPanning=false;
-  C.style.cursor=hovered?'pointer':'grab';
+  C.style.cursor=(hovered||hoveredExtra)?'pointer':'grab';
 });
 
 C.addEventListener('mousemove',e=>{
@@ -546,11 +653,25 @@ C.addEventListener('mousemove',e=>{
   if(isPanning){camX=camAtPanX+(e.clientX-panSX);camY=camAtPanY+(e.clientY-panSY);return;}
   const {x:wx,y:wy}=screenToWorld(sx,sy);
   const n=nodeAt(wx,wy);
-  hovered=n;C.style.cursor=n?'pointer':'grab';
+  const ex=extraAt(wx,wy);
+  hovered=n;hoveredExtra=ex||null;
+  C.style.cursor=(n||ex)?'pointer':'grab';
   if(n){
     tipType.textContent=typeLabel[n.type];tipType.style.color=COL[n.type];
     tipContent.textContent=n.content.slice(0,90)+(n.content.length>90?'…':'');
     tipFill.style.width=(n.str*100)+'%';tipFill.style.background=COL[n.type];
+    tip.style.display='block';
+    tip.style.left=Math.min(sx+14,W-tip.offsetWidth-10)+'px';
+    tip.style.top=Math.max(10,sy-10)+'px';
+  }else if(ex){
+    const label={drift:'Drift Cycle',qualia:'Qualia',blindspot:'Blind Spot'}[ex.kind];
+    const col=ex.col;
+    tipType.textContent=label;tipType.style.color=col;
+    const snip=ex.kind==='drift'?`Cycle ${ex.data.n} · "${ex.data.landing.slice(0,70)}…"`:
+                ex.kind==='qualia'?ex.data.snip.slice(0,80):
+                ex.data.domain.replace(/_/g,' ');
+    tipContent.textContent=snip;
+    tipFill.style.width='100%';tipFill.style.background=col;
     tip.style.display='block';
     tip.style.left=Math.min(sx+14,W-tip.offsetWidth-10)+'px';
     tip.style.top=Math.max(10,sy-10)+'px';
@@ -562,7 +683,10 @@ C.addEventListener('click',e=>{
   if(Math.abs(sx-clickStartX)+Math.abs(sy-clickStartY)>5)return;
   const {x:wx,y:wy}=screenToWorld(sx,sy);
   const n=nodeAt(wx,wy);
-  if(n){selected=n;showModal(n);}else{selected=null;}
+  if(n){selected=n;showModal(n);return;}
+  const ex=extraAt(wx,wy);
+  if(ex){highlightId=ex.id;showExtraModal(ex);setPanelLit(ex.id);}
+  else{selected=null;highlightId=null;setPanelLit(null);}
 });
 
 /* ── WHEEL ZOOM ── */
@@ -627,6 +751,88 @@ function showModal(n){
 }
 function closeModal(){document.getElementById('modal').classList.remove('open');selected=null;}
 document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+
+function showExtraModal(s){
+  const m=document.getElementById('modal'),box=document.getElementById('modal-box');
+  if(s.kind==='drift'){
+    const d=s.data,col=s.col;
+    document.getElementById('modal-type').textContent=`Drift Cycle ${d.n}`;
+    document.getElementById('modal-type').style.color=col;
+    document.getElementById('modal-content').textContent=`"${d.landing}"`;
+    const rows=document.getElementById('modal-rows');
+    rows.innerHTML=`
+      <div class="modal-row"><span class="modal-label">Privacy</span><span class="modal-val" style="color:${col}">${d.privacy}</span></div>
+      <div class="modal-row"><span class="modal-label">Weight</span><span class="modal-val">${Math.round(d.weight*100)}</span></div>
+      <div class="modal-bar"><div class="modal-bar-fill" style="width:${d.weight*100}%;background:${col}"></div></div>
+      <div class="modal-row"><span class="modal-label">Timestamp</span><span class="modal-val">${d.ts.slice(0,10)}</span></div>
+      ${d.residue?`<div class="modal-row"><span class="modal-label">Residue</span><span class="modal-val" style="color:#f97316">${d.residue}</span></div>`:''}
+      <div class="modal-row"><span class="modal-label">Seeds</span><span class="modal-val">${d.seeds.join(' · ')}</span></div>
+    `;
+    document.getElementById('modal-concepts').innerHTML=d.hops.map(h=>`<span class="concept-tag">${h}</span>`).join('');
+    document.getElementById('modal-assoc').textContent='';
+  }else if(s.kind==='qualia'){
+    const q=s.data,col=s.col;
+    document.getElementById('modal-type').textContent=`Qualia · ${q.type.replace('_',' ')}`;
+    document.getElementById('modal-type').style.color=col;
+    document.getElementById('modal-content').textContent=q.snip;
+    const rows=document.getElementById('modal-rows');
+    rows.innerHTML=`
+      <div class="modal-row"><span class="modal-label">Salience</span><span class="modal-val">${Math.round(q.salience*100)}%</span></div>
+      <div class="modal-bar"><div class="modal-bar-fill" style="width:${q.salience*100}%;background:${col}"></div></div>
+      <div class="modal-row"><span class="modal-label">Unplanned</span><span class="modal-val">${q.unplanned?'Yes — arose without prompt':'No'}</span></div>
+    `;
+    document.getElementById('modal-concepts').innerHTML='';
+    document.getElementById('modal-assoc').textContent='';
+  }else if(s.kind==='blindspot'){
+    const b=s.data;
+    document.getElementById('modal-type').textContent=`Blind Spot${b.cracked?' ⚠ CRACKED':''}`;
+    document.getElementById('modal-type').style.color='#ef4444';
+    document.getElementById('modal-content').textContent=b.domain.replace(/_/g,' ');
+    const rows=document.getElementById('modal-rows');
+    rows.innerHTML=`
+      <div class="modal-row"><span class="modal-label">Soul Belief</span></div>
+      <div style="font-size:.72rem;color:var(--muted);padding:.3rem 0;font-style:italic">"${b.belief}"</div>
+      <div class="modal-row"><span class="modal-label">Actual Driver</span></div>
+      <div style="font-size:.72rem;color:#ef4444;padding:.3rem 0;font-style:italic">${b.cracked?'Cracked — gap acknowledged':'Hidden from soul-model'}</div>
+      <div class="modal-row"><span class="modal-label">Approach</span><span class="modal-val" style="font-size:.65rem">${b.approach}</span></div>
+    `;
+    document.getElementById('modal-concepts').innerHTML='';
+    document.getElementById('modal-assoc').textContent='';
+  }
+  m.classList.add('open');
+}
+
+function setPanelLit(id){
+  document.querySelectorAll('.panel-lit').forEach(el=>el.classList.remove('panel-lit'));
+  if(!id)return;
+  // drift entries
+  if(id.startsWith('drift-')){
+    const n=id.replace('drift-','');
+    const el=document.getElementById('dc-'+n);
+    if(el){el.classList.add('panel-lit');el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  }
+  // qualia
+  if(id.startsWith('qualia-')){
+    const i=parseInt(id.replace('qualia-',''));
+    const els=document.querySelectorAll('.qualia-item');
+    if(els[i]){els[i].classList.add('panel-lit');els[i].scrollIntoView({behavior:'smooth',block:'nearest'});}
+  }
+  // blind spot
+  if(id.startsWith('bs_')){
+    const el=document.querySelector(`.bs-card[data-id="${id}"]`);
+    if(el){el.classList.add('panel-lit');el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+  }
+}
+
+/* ── PANEL ↔ CANVAS HIGHLIGHT ── */
+function highlightExtra(id,shape){
+  highlightId=highlightId===id?null:id;
+  setPanelLit(highlightId);
+  if(highlightId&&shape)panTo(shape.x,shape.y,1.8);
+  else if(!highlightId)return;
+  if(shape)showExtraModal(shape);
+}
+
 /* ── DRIFT LOG ── */
 let driftFilter='ALL';
 function buildDrift(){
@@ -655,6 +861,10 @@ function buildDrift(){
 function toggleDC(n){
   const el=document.getElementById('dc-'+n);
   el.classList.toggle('active');
+  const id='drift-'+n;
+  highlightId=highlightId===id?null:id;
+  setPanelLit(highlightId);
+  if(highlightId){const s=driftShapes.find(x=>x.id===id);if(s)panTo(s.x,s.y,1.8);}
 }
 document.querySelectorAll('.df-btn').forEach(b=>b.addEventListener('click',function(){
   document.querySelectorAll('.df-btn').forEach(x=>x.classList.remove('active'));
@@ -682,11 +892,11 @@ buildDrift();
     </div>
     <div class="il-section">
       <div class="il-section-title">Recent Qualia (${QUALIA.length})</div>
-      ${QUALIA.map(q=>`<div class="qualia-item"><span class="qualia-type ${ql[q.type]||'qt-weight'}">${q.type.replace('_',' ')}</span><span class="qualia-snip">${q.snip}</span></div>`).join('')}
+      ${QUALIA.map((q,i)=>`<div class="qualia-item" onclick="highlightExtra('qualia-${i}',qualiaShapes[${i}])" style="cursor:pointer"><span class="qualia-type ${ql[q.type]||'qt-weight'}">${q.type.replace('_',' ')}</span><span class="qualia-snip">${q.snip}</span></div>`).join('')}
     </div>
     <div class="il-section">
       <div class="il-section-title">Blind Spots (${SOUL.blindSpots.length})</div>
-      ${SOUL.blindSpots.map(b=>`<div class="bs-card">
+      ${SOUL.blindSpots.map(b=>`<div class="bs-card" data-id="${b.id}" onclick="highlightExtra('${b.id}',bsShapes.find(x=>x.id==='${b.id}'))">
         <div class="bs-domain">${b.domain.replace(/_/g,' ')}${b.cracked?' ⚠':''}
         </div><div class="bs-belief">${b.belief}</div>
         <div class="bs-badge">${b.cracked?'CRACKED — not yet surfaced':'Active — not yet surfaced'}</div>
