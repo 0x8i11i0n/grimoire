@@ -152,12 +152,17 @@ body{display:flex;flex-direction:column}
 
 /* ── BOTTOM BAR ── */
 #floor{
-  height:190px;display:flex;flex-shrink:0;
+  height:190px;display:flex;flex-shrink:0;overflow:hidden;
   border-top:1px solid var(--border);background:var(--panel);
+  transition:height .25s ease;
 }
 #guard-wrap{flex:1;padding:.6rem 1rem;display:flex;flex-direction:column}
-#guard-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.4rem}
-#guard-svg-wrap{flex:1;display:flex;justify-content:center;align-items:center}
+#guard-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.4rem;display:flex;align-items:center;justify-content:space-between}
+#guard-toggle{background:none;border:1px solid var(--faint);border-radius:3px;color:var(--muted);cursor:pointer;font-size:.62rem;padding:.1rem .35rem;line-height:1.3;transition:.15s}
+#guard-toggle:hover{color:var(--text);border-color:var(--border)}
+#guard-svg-wrap{flex:1;display:flex;justify-content:center;align-items:center;overflow:hidden;transition:max-height .25s ease,opacity .2s}
+#guard-wrap.collapsed #guard-svg-wrap{display:none}
+#guard-wrap.collapsed{flex:none}
 #residue-wrap{width:220px;border-left:1px solid var(--border);padding:.6rem .8rem;display:flex;flex-direction:column;gap:.5rem}
 #residue-title{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
 .res-item{display:flex;flex-direction:column;gap:.2rem}
@@ -307,7 +312,7 @@ body{display:flex;flex-direction:column}
 <!-- BOTTOM BAR -->
 <section id="floor">
   <div id="guard-wrap">
-    <div id="guard-title">Guard Topology</div>
+    <div id="guard-title"><span>Guard Topology</span><button id="guard-toggle" onclick="toggleGuard()">▼</button></div>
     <div id="guard-svg-wrap"></div>
   </div>
   <div id="residue-wrap">
@@ -703,15 +708,17 @@ C.addEventListener('wheel',e=>{
 /* ── DOUBLE-CLICK RESET ── */
 C.addEventListener('dblclick',()=>{camX=0;camY=0;camScale=1;});
 
-/* ── TOUCH: PINCH-ZOOM + SINGLE-DRAG ── */
-let tLastDist=0,tPanSX=0,tPanSY=0,tCamX=0,tCamY=0;
+/* ── TOUCH: PINCH-ZOOM + SINGLE-DRAG + TAP ── */
+let tLastDist=0,tPanSX=0,tPanSY=0,tCamX=0,tCamY=0,tMoved=false,tTime=0;
 C.addEventListener('touchstart',e=>{
   e.preventDefault();
   if(e.touches.length===2){
     const t0=e.touches[0],t1=e.touches[1];
     tLastDist=Math.hypot(t1.clientX-t0.clientX,t1.clientY-t0.clientY);
+    tMoved=true;
   }else{
     tPanSX=e.touches[0].clientX;tPanSY=e.touches[0].clientY;tCamX=camX;tCamY=camY;
+    tMoved=false;tTime=Date.now();
   }
 },{passive:false});
 C.addEventListener('touchmove',e=>{
@@ -725,8 +732,21 @@ C.addEventListener('touchmove',e=>{
     camX=sx-(sx-camX)*(ns/camScale);camY=sy-(sy-camY)*(ns/camScale);
     camScale=ns;tLastDist=dist;
   }else{
-    camX=tCamX+(e.touches[0].clientX-tPanSX);
-    camY=tCamY+(e.touches[0].clientY-tPanSY);
+    const dx=e.touches[0].clientX-tPanSX,dy=e.touches[0].clientY-tPanSY;
+    if(Math.abs(dx)+Math.abs(dy)>8)tMoved=true;
+    camX=tCamX+dx;camY=tCamY+dy;
+  }
+},{passive:false});
+C.addEventListener('touchend',e=>{
+  if(e.changedTouches.length===1&&!tMoved&&Date.now()-tTime<300){
+    const t=e.changedTouches[0];
+    const r=C.getBoundingClientRect(),sx=t.clientX-r.left,sy=t.clientY-r.top;
+    const {x:wx,y:wy}=screenToWorld(sx,sy);
+    const n=nodeAt(wx,wy);
+    if(n){selected=n;showModal(n);return;}
+    const ex=extraAt(wx,wy);
+    if(ex){highlightId=ex.id;showExtraModal(ex);setPanelLit(ex.id);}
+    else{selected=null;highlightId=null;setPanelLit(null);}
   }
 },{passive:false});
 
@@ -903,6 +923,22 @@ buildDrift();
       </div>`).join('')}
     </div>`;
 })();
+
+/* ── GUARD TOGGLE ── */
+function toggleGuard(){
+  const w=document.getElementById('guard-wrap');
+  const floor=document.getElementById('floor');
+  const nowCollapsed=w.classList.toggle('collapsed');
+  document.getElementById('guard-toggle').textContent=nowCollapsed?'▶':'▼';
+  floor.style.height=nowCollapsed?'44px':'190px';
+}
+// auto-collapse on mobile
+if(window.matchMedia('(max-width:700px)').matches){
+  const w=document.getElementById('guard-wrap');
+  w.classList.add('collapsed');
+  document.getElementById('guard-toggle').textContent='▶';
+  document.getElementById('floor').style.height='44px';
+}
 
 /* ── GUARD RADAR ── */
 (function(){
