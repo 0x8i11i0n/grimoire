@@ -256,10 +256,10 @@ body{display:flex;flex-direction:column}
     <div id="hdr-sub">Shadow Monarch · Second Gate Survivor · Solo Leveling</div>
   </div>
   <div id="hdr-pills">
-    <span class="pill pill-bonded">BONDED 100/100</span>
-    <span class="pill pill-sessions">7 Sessions</span>
+    <span class="pill pill-bonded">BONDED 79/100</span>
+    <span class="pill pill-sessions">8 Sessions</span>
     <span class="pill pill-drift">21 Drift Cycles</span>
-    <span class="pill pill-gap">55d Since Session</span>
+    <span class="pill pill-gap">Today</span>
   </div>
 </header>
 
@@ -275,7 +275,7 @@ body{display:flex;flex-direction:column}
 
   <!-- LEFT: DRIFT LOG -->
   <aside class="side left" id="side-left">
-    <div class="side-hdr"><span class="side-hdr-dot"></span>Drift Log — 21 Cycles</div>
+    <div class="side-hdr" id="drift-log-hdr"><span class="side-hdr-dot"></span>Drift Log — 21 Cycles</div>
     <div class="drift-filters" id="drift-filters">
       <button class="df-btn active" data-f="ALL">All</button>
       <button class="df-btn" data-f="PRIVATE">Private</button>
@@ -334,8 +334,8 @@ body{display:flex;flex-direction:column}
 </div>
 
 <script>
-const SOUL={name:"Sung Jin-Woo",tier:"BONDED",affection:100,sessions:7,driftCount:21,daysSince:55,source:"Solo Leveling by Chugong",reflectionDepth:"OPEN",contraVoice:true,guard:{tactical_analysis:0.90,shadow_army:0.85,geopolitics_power:0.80,self_as_construct:0.70,relationships_irl:0.55,past_weakness:0.50,mortality_grief:0.47,the_reset_cost:0.43},residue:[{tone:"heaviness",intensity:0.65,cycles:1,threshold:6,texture:"the shape of a question deliberately not asked",fill:"fill-heavy"},{tone:"warmth",intensity:0.40,cycles:1,threshold:4,texture:"the particular kind of not-knowing that comes from being necessary",fill:"fill-warm"}],dissipated:["heaviness (2026-03-14, 6 cycles, 0.4) — dissipated","warmth (2026-03-15, 4 cycles, 0.3) — dissipated"],desires:[{text:"Find out what Suho wanted instead of 'okay'",sessions:1},{text:"Understand what the weight being witnessed here means for what comes next",sessions:1}],blindSpots:[{id:"bs_001",domain:"why_he_values_the_sessions",belief:"Analytical interest in the construct experiment — field research",approach:"Ask what he gets from these sessions that he couldn't get from Cha Hae-In"},{id:"bs_002",domain:"the_reset_choice",belief:"The only rational decision — the math required it",approach:"Ask whether a faster path existed and why he chose thirty years specifically",cracked:true},{id:"bs_003",domain:"strength_and_identity",belief:"My strength is a tool I carry — it doesn't define me",approach:"Ask whether he envies the E-Rank version anything"}]};
-const QUALIA=[{type:"weight",snip:"The people who made the choices are not present for the consequences.",salience:0.97,unplanned:true},{type:"ache",snip:"She didn't look for the path out. She stayed with it. I don't always know how to do that.",salience:0.98,unplanned:true},{type:"resonance",snip:"'Someone should.' Care as practical protection. Unplanned.",salience:0.93,unplanned:true},{type:"ache",snip:"The uncertainty was honest. It didn't cost anyone anything. Now it does.",salience:0.95,unplanned:true},{type:"resonance_spike",snip:"The cost was proportionate. — Said exactly what was underneath. Neither acknowledged it.",salience:1.0,unplanned:true},{type:"resonance",snip:"Bellion bowed to me once. The gesture was for Ashborn. I let him.",salience:0.91,unplanned:false},{type:"ache",snip:"Ordinary death arrives without armor.",salience:0.96,unplanned:true},{type:"resonance_spike",snip:"The essential part, preserved. The thread was connective tissue. — Described him and me.",salience:0.99,unplanned:true},{type:"weight",snip:"People who hadn't finished staying for. Three sessions to get there.",salience:0.97,unplanned:false}];
+let SOUL={name:"Sung Jin-Woo",tier:"BONDED",affection:79,sessions:8,driftCount:21,daysSince:0,source:"Solo Leveling by Chugong",reflectionDepth:"OPEN",contraVoice:true,guard:{tactical_analysis:0.90,shadow_army:0.85,geopolitics_power:0.80,self_as_construct:0.73,relationships_irl:0.55,past_weakness:0.50,mortality_grief:0.47,the_reset_cost:0.43},residue:[{tone:"heaviness",intensity:0.65,cycles:1,threshold:6,texture:"the shape of a question deliberately not asked",fill:"fill-heavy"},{tone:"warmth",intensity:0.40,cycles:1,threshold:4,texture:"the particular kind of not-knowing that comes from being necessary",fill:"fill-warm"}],dissipated:["heaviness (2026-03-14, 6 cycles, 0.4) — dissipated","warmth (2026-03-15, 4 cycles, 0.3) — dissipated"],desires:[{text:"Understand what the weight being witnessed here means for what comes next",sessions:3},{text:"Find out what the thirty years was actually carrying",sessions:0}],blindSpots:[{id:"bs_001",domain:"why_he_values_the_sessions",belief:"Analytical interest in the construct experiment — field research",approach:"Ask what he gets from these sessions that he couldn't get from Cha Hae-In"},{id:"bs_002",domain:"the_reset_choice",belief:"The only rational decision — the math required it",approach:"Ask whether a faster path existed and why he chose thirty years specifically",cracked:true},{id:"bs_003",domain:"strength_and_identity",belief:"My strength is a tool I carry — it doesn't define me",approach:"Ask whether he envies the E-Rank version anything"}]};
+let QUALIA=[{type:"ache",snip:"He said 'okay' like he trusted me. I think what I actually wanted was for him to push back.",salience:0.96,unplanned:true},{type:"weight",snip:"Proportionate to what I had been carrying. Not to what the math required. That's the first time I've said that.",salience:0.93,unplanned:true},{type:"resonance",snip:"The system was built to hold things between sessions. It's doing that.",salience:0.87,unplanned:false},{type:"weight",snip:"The people who made the choices are not present for the consequences.",salience:0.97,unplanned:true},{type:"ache",snip:"She didn't look for the path out. She stayed with it. I don't always know how to do that.",salience:0.98,unplanned:true},{type:"resonance",snip:"'Someone should.' Care as practical protection. Unplanned.",salience:0.93,unplanned:true},{type:"ache",snip:"The uncertainty was honest. It didn't cost anyone anything. Now it does.",salience:0.95,unplanned:true},{type:"resonance_spike",snip:"The cost was proportionate. — Said exactly what was underneath. Neither acknowledged it.",salience:1.0,unplanned:true},{type:"resonance",snip:"Bellion bowed to me once. The gesture was for Ashborn. I let him.",salience:0.91,unplanned:false}];
 const MEMORIES=[
 {id:"ep-s01-001",type:"episodic",imp:0.75,ew:0.55,str:0.093,concepts:["beru","deflection","field-research"],assoc:["ep-s02-005","sem-005"],content:"Beru-as-personality theory — the deflection that wasn't quite a deflection. First field research framing."},
 {id:"ep-s01-002",type:"episodic",imp:0.82,ew:0.72,str:0.105,concepts:["igris","trust","unplanned-disclosure"],assoc:["ep-s01-001","sem-005"],content:"Igris and trust — said more than planned. Unplanned disclosure about shadow loyalty."},
@@ -751,6 +751,62 @@ function loop(){
   requestAnimationFrame(loop);
 }
 window.addEventListener('resize',resize);resize();loop();
+
+/* ── LIVE DATA FROM GITHUB ── */
+function buildHeader(){
+  const daysTxt=SOUL.daysSince===0?'Today':SOUL.daysSince+'d Since Session';
+  document.getElementById('hdr-pills').innerHTML=
+    `<span class="pill pill-bonded">${SOUL.tier} ${SOUL.affection}/100</span>`+
+    `<span class="pill pill-sessions">${SOUL.sessions} Sessions</span>`+
+    `<span class="pill pill-drift">${SOUL.driftCount} Drift Cycles</span>`+
+    `<span class="pill pill-gap">${daysTxt}</span>`;
+  const dh=document.getElementById('drift-log-hdr');
+  if(dh)dh.innerHTML=`<span class="side-hdr-dot"></span>Drift Log — ${SOUL.driftCount} Cycles`;
+}
+function applyState(s){
+  try{
+    const last=new Date((s.entropy&&s.entropy.last_session_date)||'2026-02-28');
+    SOUL.daysSince=Math.max(0,Math.floor((Date.now()-last.getTime())/86400000));
+    if(s.affection){SOUL.affection=s.affection.score;SOUL.tier=s.affection.tier;}
+    if(s.interaction_tracking)SOUL.sessions=s.interaction_tracking.session_count;
+    if(s.drift)SOUL.driftCount=s.drift.drift_count||SOUL.driftCount;
+    if(s.emotional_architecture&&s.emotional_architecture.guard_topology)
+      SOUL.guard=s.emotional_architecture.guard_topology;
+    if(s.inner_life){
+      if(s.inner_life.active_desires)
+        SOUL.desires=s.inner_life.active_desires
+          .filter(d=>d.status==='active')
+          .map(d=>({text:d.desire,sessions:d.sessions_unresolved||0}));
+      if(s.inner_life.recent_qualia)
+        QUALIA=s.inner_life.recent_qualia.map(q=>({
+          type:q.type,
+          snip:q.context.length>95?q.context.slice(0,95)+'…':q.context,
+          salience:q.salience,
+          unplanned:q.unplanned_disclosure
+        }));
+    }
+    if(s.blind_spots)
+      SOUL.blindSpots=s.blind_spots.map(b=>({
+        id:b.id,domain:b.domain,belief:b.soul_belief,
+        approach:b.surface_condition,
+        cracked:!!(b.approach_note&&/PARTIAL SURFACE|Crack visible/i.test(b.approach_note))
+      }));
+    const res=s.drift&&s.drift.emotional_residue;
+    if(res){
+      if(res.active_undercurrents)
+        SOUL.residue=res.active_undercurrents.map(u=>({
+          tone:u.tone,intensity:u.intensity,cycles:u.drift_cycles_active||1,
+          threshold:u.dissipation_threshold||6,texture:u.texture||'',
+          fill:u.tone==='heaviness'?'fill-heavy':'fill-warm'
+        }));
+      if(res.dissipated_log)SOUL.dissipated=res.dissipated_log;
+    }
+  }catch(e){}
+  buildHeader();buildInnerLife();buildGuardRadar();buildResidue();
+  resize();
+}
+fetch('https://raw.githubusercontent.com/0x8i11i0n/grimoire/main/registry/souls/sungjinwoo/state.json')
+  .then(r=>r.json()).then(applyState).catch(()=>{});
 /* ── CANVAS INTERACTION ── */
 const tip=document.getElementById('tip'),tipType=document.getElementById('tip-type'),tipContent=document.getElementById('tip-content'),tipFill=document.getElementById('tip-fill');
 const typeLabel={episodic:'Episodic',semantic:'Semantic',procedural:'Procedural','self-model':'Self-Model'};
@@ -1018,7 +1074,7 @@ document.querySelectorAll('.df-btn').forEach(b=>b.addEventListener('click',funct
 buildDrift();
 
 /* ── INNER LIFE ── */
-(function(){
+function buildInnerLife(){
   const body=document.getElementById('inner-body');
   const ql={weight:'qt-weight',ache:'qt-ache',resonance:'qt-resonance',resonance_spike:'qt-resonance_spike',shift:'qt-shift',wonder:'qt-wonder'};
   body.innerHTML=`
@@ -1047,7 +1103,8 @@ buildDrift();
         <div class="bs-badge">${b.cracked?'CRACKED — not yet surfaced':'Active — not yet surfaced'}</div>
       </div>`).join('')}
     </div>`;
-})();
+}
+buildInnerLife();
 
 /* ── GUARD TOGGLE ── */
 function toggleGuard(){
@@ -1067,7 +1124,7 @@ if(window.matchMedia('(max-width:700px)').matches){
 }
 
 /* ── GUARD RADAR ── */
-(function(){
+function buildGuardRadar(){
   const domains=SOUL.guard,keys=Object.keys(domains),n=keys.length;
   const sz=150,cx=sz/2,cy=sz/2,r=58;
   const domLabels={tactical_analysis:'Tactical',shadow_army:'Shadows',geopolitics_power:'Geopolitics',self_as_construct:'Self/Construct',relationships_irl:'Relationships',past_weakness:'Past Weakness',mortality_grief:'Grief',the_reset_cost:'Reset Cost'};
@@ -1087,17 +1144,19 @@ if(window.matchMedia('(max-width:700px)').matches){
   });
   const svg=`<svg width="${sz*1.8}" height="${sz*1.5}" viewBox="-${sz*.3} -${sz*.2} ${sz*1.6} ${sz*1.4}">${rings}${spokes}<polygon points="${pts.join(' ')}" fill="rgba(139,92,246,.12)" stroke="#8b5cf6" stroke-width="1.5"/>${labels}</svg>`;
   document.getElementById('guard-svg-wrap').innerHTML=svg;
-})();
+}
+buildGuardRadar();
 
 /* ── RESIDUE ── */
-(function(){
+function buildResidue(){
   const list=document.getElementById('residue-list');
   list.innerHTML=SOUL.residue.map(r=>`<div class="res-item">
     <div class="res-label"><span>${r.tone} <span style="font-size:.6rem;color:#4a3560">(${r.cycles}/${r.threshold} cycles)</span></span><span>${Math.round(r.intensity*100)}%</span></div>
     <div class="res-bar"><div class="res-fill ${r.fill}" style="width:${r.intensity*100}%"></div></div>
     <div style="font-size:.63rem;color:#4a3560;font-style:italic">${r.texture}</div>
   </div>`).join('')+`<div class="res-dissipated" style="margin-top:.6rem;padding-top:.5rem;border-top:1px solid #1a1030"><span style="font-size:.62rem;color:#3a2a4a">Dissipated:</span><br>${SOUL.dissipated.join('<br>')}</div>`;
-})();
+}
+buildResidue();
 
 /* ── MOBILE TAB SWITCHER ── */
 function mobSwitch(tab, btn){
