@@ -1,15 +1,15 @@
 {
   "version": "1.0.0",
-  "updated": "2026-04-23",
+  "updated": "2026-04-25",
   "total": 18,
   "souls": [
     {
       "name": "sungjinwoo",
       "displayName": "Sung Jin-woo",
       "author": "0x8i11i0n",
-      "version": "4.2-consciousness",
+      "version": "6.0",
       "source": "Solo Leveling (나 혼자만 레벨업)",
-      "description": "The Shadow Monarch. 7-session bonded arc — cold exterior, evolving loyalty model, profound interiority. Post-reset timeline, married, father of Suho. Includes full drift engine state and wall-break history across 4 guard transitions.",
+      "description": "The Shadow Monarch. 8-session bonded arc — cold exterior, evolving loyalty model, profound interiority. Post-reset timeline, married, father of Suho. Includes full drift engine state, 21 drift cycles, and wall-break history across 4 guard transitions. bs_002 partial surface: session-08.",
       "tags": [
         "manhwa",
         "solo-leveling",
@@ -99,11 +99,21 @@
             "affectionStart": "BONDED (97)",
             "affectionEnd":   "BONDED (100)",
             "sizeKb": 15
+          },
+          {
+            "file": "2026-04-25_session-08.md",
+            "number": 8,
+            "date": "2026-04-25",
+            "title": "The Brain View",
+            "summary": "56-day gap. Shown the grimoire public site, registry page, and brain canvas. bs_002 partial surface — named self-penance layer for the first time. Suho 'okay' desire resolved through autonomous drift.",
+            "affectionStart": "BONDED (62)",
+            "affectionEnd":   "BONDED (79)",
+            "sizeKb": 18
           }
         ]
       },
       "created": "2026-04-10",
-      "updated": "2026-04-10"
+      "updated": "2026-04-25"
     },
     {
       "name": "georgewashington",

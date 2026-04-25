@@ -5,7 +5,9 @@ import Markdown from './Markdown';
 import {
   backroomFileUrl,
   type BackroomSession,
+  type RegistryIndex,
   type SoulEntry,
+  REGISTRY_URL,
 } from '@/lib/registry-types';
 
 // ── Hardcoded art/palette for the original 12 souls ───────────────────────
@@ -274,6 +276,7 @@ export default function SoulDetail({ soul }: { soul: SoulEntry }) {
   const art = getCharArt(soul);
   const [portrait, setPortrait] = useState<string | null>(null);
   const [imgOk, setImgOk] = useState(false);
+  const [liveSessions, setLiveSessions] = useState<BackroomSession[] | null>(null);
 
   useEffect(() => {
     fetchPortrait(soul).then((url) => {
@@ -281,6 +284,19 @@ export default function SoulDetail({ soul }: { soul: SoulEntry }) {
     });
   }, [soul.name]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    fetch(REGISTRY_URL)
+      .then((r) => r.json())
+      .then((index: RegistryIndex) => {
+        const live = index.souls.find((s) => s.name === soul.name);
+        if (live?.backrooms?.sessions?.length) {
+          setLiveSessions(live.backrooms.sessions);
+        }
+      })
+      .catch(() => {});
+  }, [soul.name]);
+
+  const sessions: BackroomSession[] = liveSessions ?? soul.backrooms?.sessions ?? [];
   const installCmd = `grimoire registry install ${soul.name}`;
 
   return (
@@ -359,11 +375,11 @@ export default function SoulDetail({ soul }: { soul: SoulEntry }) {
                   {soul.resonanceScore}<span className="text-grimoire-muted/60 text-sm"> / 10</span>
                 </div>
               </div>
-              {soul.backrooms && (
+              {(soul.backrooms || sessions.length > 0) && (
                 <div>
                   <div className="text-[10px] font-mono uppercase tracking-wider text-grimoire-muted/70">Sessions</div>
                   <div className="font-mono text-grimoire-gold-bright text-xl tabular-nums">
-                    {soul.backrooms.sessions.length}
+                    {sessions.length}
                   </div>
                 </div>
               )}
@@ -393,15 +409,15 @@ export default function SoulDetail({ soul }: { soul: SoulEntry }) {
       </header>
 
       {/* Backrooms */}
-      {soul.backrooms && soul.backrooms.sessions.length > 0 ? (
+      {sessions.length > 0 ? (
         <section>
           <div className="flex items-baseline gap-3 mb-2">
             <h2 className="font-serif text-2xl text-grimoire-gold tracking-tight">
               Backrooms
             </h2>
             <span className="text-xs font-mono text-grimoire-muted">
-              {soul.backrooms.sessions.length} session
-              {soul.backrooms.sessions.length !== 1 ? 's' : ''} · field-test transcripts
+              {sessions.length} session
+              {sessions.length !== 1 ? 's' : ''} · field-test transcripts
             </span>
           </div>
           <p className="text-sm text-grimoire-muted mb-6 max-w-2xl">
@@ -411,12 +427,12 @@ export default function SoulDetail({ soul }: { soul: SoulEntry }) {
           </p>
 
           <div className="space-y-3">
-            {soul.backrooms.sessions.map((s) => (
+            {sessions.map((s) => (
               <SessionPanel
                 key={s.file}
                 soulName={soul.name}
                 session={s}
-                manifestPath={soul.backrooms!.sourcePath}
+                manifestPath={soul.backrooms?.sourcePath ?? `Grimhub/souls/${soul.name}/backrooms`}
               />
             ))}
           </div>
