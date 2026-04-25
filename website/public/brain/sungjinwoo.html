@@ -423,6 +423,19 @@ function resize(){
   initNodes();
 }
 
+// Lightweight resize: updates canvas buffer + cluster anchors without resetting node positions.
+// Used when layout shifts (floor collapse) so shapes don't jump.
+function resizeCanvas(){
+  const area=document.getElementById('canvas-area');
+  const r=area.getBoundingClientRect(),dpr=devicePixelRatio||1;
+  W=r.width;H=r.height;
+  C.width=Math.round(W*dpr);C.height=Math.round(H*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  CX=W/2;CY=H/2;
+  nodes.forEach(n=>{const c=clusterFor(n.type);n.gx=c.x;n.gy=c.y;});
+  initExtras();
+}
+
 function clusterFor(type){
   const offsets={'self-model':[-180,-170],'semantic':[200,-130],'procedural':[-210,155],'episodic':[165,175]};
   const [dx,dy]=offsets[type]||[0,0];
@@ -963,6 +976,7 @@ function toggleGuard(){
   const nowCollapsed=w.classList.toggle('collapsed');
   document.getElementById('guard-toggle').textContent=nowCollapsed?'▶':'▼';
   floor.style.height=nowCollapsed?'44px':'190px';
+  setTimeout(resizeCanvas,270); // after transition completes
 }
 // auto-collapse on mobile
 if(window.matchMedia('(max-width:700px)').matches){
@@ -1017,7 +1031,7 @@ function mobSwitch(tab, btn){
   ca.classList.remove('mob-active');
   ls.classList.remove('mob-active');
   rs.classList.remove('mob-active');
-  if(tab==='brain'){ca.classList.add('mob-active');resize();}
+  if(tab==='brain'){ca.classList.add('mob-active');resizeCanvas();}
   else if(tab==='drift'){ls.classList.add('mob-active');}
   else if(tab==='life'){rs.classList.add('mob-active');}
 }
