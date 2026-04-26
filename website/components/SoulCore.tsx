@@ -1,369 +1,340 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
-/* ── Athenaeum — memory grid ─────────────────────────────── */
+/* ── Data ─────────────────────────────────────────────────── */
 
-function AthenaeumVisual({ visible }: { visible: boolean }) {
-  const types = [
-    { label: 'self-model', col: '#c4a265', y: 28,  st: [0.92, 0.6, 0.88, 0.5, 0.95, 0.72, 0.82, 0.55, 0.9] },
-    { label: 'procedural', col: '#4cb87a', y: 72,  st: [0.55, 0.8, 0.42, 0.78, 0.85, 0.48, 0.72, 0.62, 0.8] },
-    { label: 'semantic',   col: '#7c5cbf', y: 116, st: [0.82, 0.92, 0.62, 0.88, 0.52, 0.9, 0.78, 0.68, 0.58] },
-    { label: 'episodic',   col: '#d4704a', y: 154, st: [0.28, 0.52, 0.78, 0.18, 0.42, 0.14, 0.68, 0.28, 0.48] },
-  ];
-  const xs = [36, 68, 100, 135, 168, 200, 232, 264, 292];
-  const arcs: Array<[number, number, number, number]> = [
-    [36, 28, 36, 154], [100, 28, 135, 116], [168, 72, 168, 116], [232, 116, 200, 154],
-  ];
-  return (
-    <svg viewBox="0 0 320 180" className="w-full h-full" aria-hidden="true">
-      {/* shelf lines */}
-      {types.map((t) => (
-        <line key={t.label} x1="22" y1={t.y} x2="305" y2={t.y} stroke={t.col} strokeWidth="0.3" opacity="0.18" />
-      ))}
-      {/* association arcs */}
-      {arcs.map(([x1, y1, x2, y2], i) => (
-        <path key={i}
-          d={`M${x1},${y1} Q${(x1 + x2) / 2 + (i % 2 === 0 ? -18 : 18)},${(y1 + y2) / 2} ${x2},${y2}`}
-          fill="none" stroke="#7c5cbf" strokeWidth="0.7"
-          opacity={visible ? 0.28 : 0}
-          strokeDasharray="3,3"
-          style={{ transition: `opacity 0.5s ease-out ${i * 120}ms` }}
-        />
-      ))}
-      {/* memory nodes */}
-      {types.map((t) =>
-        t.st.map((s, i) => (
-          <circle key={`${t.label}-${i}`}
-            cx={xs[i]} cy={t.y}
-            r={2.8 + s * 3.5}
-            fill={t.col}
-            opacity={visible ? 0.18 + s * 0.78 : 0}
-            style={{ transition: `opacity 0.4s ease-out ${100 + i * 55 + types.indexOf(t) * 80}ms` }}
-          />
-        ))
-      )}
-      {/* recall spotlight */}
-      <line x1="168" y1="8" x2="168" y2="168"
-        stroke="#c4a265" strokeWidth="0.5"
-        opacity={visible ? 0.18 : 0}
-        strokeDasharray="2,5"
-        style={{ transition: 'opacity 0.8s ease-out 0.6s' }}
-      />
-      <circle cx="168" cy="28" r="9" fill="none" stroke="#c4a265" strokeWidth="0.9"
-        opacity={visible ? 0.38 : 0}
-        style={{ transition: 'opacity 0.6s ease-out 0.8s' }}
-      />
-      {/* type labels */}
-      {types.map((t, i) => (
-        <text key={t.label} x="6" y={t.y + 3.5} fill={t.col} fontSize="7" fontFamily="monospace"
-          opacity={visible ? 0.55 : 0}
-          style={{ transition: `opacity 0.5s ease-out ${200 + i * 80}ms` }}
-        >
-          {t.label.slice(0, 4)}
-        </text>
-      ))}
-      <text x="20" y="172" fill="#4a4060" fontSize="7.5" fontFamily="monospace">athenaeum · 4 types · TF-IDF recall · decay physics</text>
-    </svg>
-  );
-}
-
-/* ── Nexus — knowledge graph ─────────────────────────────── */
-
-function NexusVisual({ visible }: { visible: boolean }) {
-  const nodes = [
-    { x: 158, y: 62, r: 10, col: '#c4a265', label: 'Jin-Woo',    type: 'soul'    },
-    { x: 62,  y: 32, r: 7,  col: '#7c5cbf', label: 'Hae-In',     type: 'person'  },
-    { x: 256, y: 32, r: 7,  col: '#7c5cbf', label: 'Igris',       type: 'person'  },
-    { x: 40,  y: 112, r: 6, col: '#4cb87a', label: 'Shadow Army', type: 'concept' },
-    { x: 278, y: 112, r: 6, col: '#4cb87a', label: 'System',      type: 'concept' },
-    { x: 100, y: 152, r: 5, col: '#d4704a', label: 'grief',       type: 'emotion' },
-    { x: 220, y: 152, r: 5, col: '#d4704a', label: 'purpose',     type: 'emotion' },
-    { x: 158, y: 148, r: 5, col: '#4a90d9', label: 'Seoul',       type: 'place'   },
-  ];
-  const edges = [
-    { a: 0, b: 1, label: 'loves',      active: true  },
-    { a: 0, b: 2, label: 'trusts',     active: true  },
-    { a: 0, b: 3, label: 'commands',   active: true  },
-    { a: 0, b: 4, label: 'bound_to',   active: true  },
-    { a: 0, b: 5, label: 'carries',    active: false }, // expired
-    { a: 0, b: 6, label: 'holds',      active: true  },
-    { a: 0, b: 7, label: 'protects',   active: true  },
-    { a: 3, b: 5, label: 'source_of',  active: true  },
-  ];
-  return (
-    <svg viewBox="0 0 320 180" className="w-full h-full" aria-hidden="true">
-      {/* edges */}
-      {edges.map((e, i) => {
-        const a = nodes[e.a], b = nodes[e.b];
-        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 - 10;
-        return (
-          <g key={i}>
-            <path d={`M${a.x},${a.y} Q${mx},${my} ${b.x},${b.y}`}
-              fill="none"
-              stroke={e.active ? '#7c5cbf' : '#3a3245'}
-              strokeWidth={e.active ? 1 : 0.6}
-              strokeDasharray={e.active ? undefined : '3,3'}
-              opacity={visible ? (e.active ? 0.45 : 0.22) : 0}
-              style={{ transition: `opacity 0.5s ease-out ${i * 80}ms` }}
-            />
-            <text x={mx} y={my - 2} textAnchor="middle" fill={e.active ? '#6a5a88' : '#3a3245'}
-              fontSize="6.5" fontFamily="monospace"
-              opacity={visible ? (e.active ? 0.7 : 0.3) : 0}
-              style={{ transition: `opacity 0.5s ease-out ${100 + i * 80}ms` }}
-            >
-              {e.label}
-            </text>
-          </g>
-        );
-      })}
-      {/* nodes */}
-      {nodes.map((n, i) => (
-        <g key={i}>
-          <circle cx={n.x} cy={n.y} r={n.r + 4} fill={n.col} opacity={visible ? 0.08 : 0}
-            style={{ transition: `opacity 0.4s ease-out ${i * 60}ms` }} />
-          <circle cx={n.x} cy={n.y} r={n.r} fill={n.col}
-            opacity={visible ? (i === 0 ? 1 : 0.72) : 0}
-            style={{ transition: `opacity 0.4s ease-out ${i * 60}ms` }} />
-          <text x={n.x} y={n.y + n.r + 10} textAnchor="middle" fill={n.col} fontSize="7" fontFamily="monospace"
-            opacity={visible ? 0.65 : 0}
-            style={{ transition: `opacity 0.5s ease-out ${100 + i * 60}ms` }}
-          >
-            {n.label}
-          </text>
-        </g>
-      ))}
-      {/* expired label */}
-      <text x="72" y="118" fill="#3a3245" fontSize="6.5" fontFamily="monospace"
-        opacity={visible ? 0.55 : 0}
-        style={{ transition: 'opacity 0.6s ease-out 0.9s' }}
-      >
-        [expired]
-      </text>
-      <text x="20" y="172" fill="#4a4060" fontSize="7.5" fontFamily="monospace">nexus · entity-relation graph · temporal validity</text>
-    </svg>
-  );
-}
-
-/* ── Consolidation — dream pipeline ──────────────────────── */
-
-function ConsolidationVisual({ visible }: { visible: boolean }) {
-  const episodic = [
-    [28,25],[48,52],[22,78],[55,100],[32,128],[62,148],[38,168],
-    [18,48],[58,72],[42,108],[52,132],[26,155],
-  ];
-  const semantic = [
-    [266,35],[282,72],[270,112],[285,148],[260,162],
-  ];
-  const concepts = ['grief', 'power', 'loyalty', 'cost', 'sacrifice'];
-  return (
-    <svg viewBox="0 0 320 180" className="w-full h-full" aria-hidden="true">
-      {/* Zone backgrounds */}
-      <rect x="8"   y="8" width="90"  height="164" rx="6" fill="#200a00" opacity="0.4" />
-      <rect x="108" y="8" width="104" height="164" rx="6" fill="#08041a" opacity="0.4" />
-      <rect x="222" y="8" width="90"  height="164" rx="6" fill="#050012" opacity="0.4" />
-
-      {/* Zone labels */}
-      {[['episodic','#d4704a',53],['dream cycle','#7c5cbf',160],['semantic','#7c5cbf',267]].map(([label,col,x],i) => (
-        <text key={i} x={x as number} y="175" textAnchor="middle" fill={col as string} fontSize="7.5" fontFamily="monospace" opacity="0.6">{label}</text>
-      ))}
-
-      {/* Episodic memories — scattered, varying strength */}
-      {episodic.map(([cx, cy], i) => (
-        <circle key={i} cx={cx} cy={cy} r={2 + (i % 3)}
-          fill="#d4704a"
-          opacity={visible ? 0.2 + (i % 5) * 0.14 : 0}
-          style={{ transition: `opacity 0.4s ease-out ${i * 50}ms` }}
-        />
-      ))}
-
-      {/* Flow arrows */}
-      {[88, 104].map((x, i) => (
-        <path key={i} d={`M${x},90 L${x + 12},90`} fill="none"
-          stroke="#7c5cbf" strokeWidth="1.2" strokeLinecap="round"
-          opacity={visible ? 0.45 : 0}
-          style={{ transition: `opacity 0.5s ease-out ${0.5 + i * 0.1}s` }}
-        />
-      ))}
-      <path d="M214,90 L222,90" fill="none" stroke="#7c5cbf" strokeWidth="1.2" strokeLinecap="round"
-        opacity={visible ? 0.45 : 0} style={{ transition: 'opacity 0.5s ease-out 0.6s' }} />
-
-      {/* Dream swirl */}
-      {[0,1,2].map((i) => (
-        <circle key={i} cx="160" cy="90" r={16 + i * 18}
-          fill="none" stroke="#7c5cbf" strokeWidth="0.6"
-          opacity={visible ? 0.12 + i * 0.06 : 0}
-          style={{ transition: `opacity 0.6s ease-out ${0.4 + i * 0.15}s` }}
-        />
-      ))}
-      <circle cx="160" cy="90" r="7" fill="#7c5cbf"
-        opacity={visible ? 0.55 : 0} style={{ transition: 'opacity 0.5s ease-out 0.5s' }} />
-
-      {/* Concept tags floating in dream zone */}
-      {concepts.map((c, i) => (
-        <text key={c}
-          x={118 + (i % 2) * 40} y={28 + i * 30}
-          fill="#a87ef0" fontSize="6.5" fontFamily="monospace"
-          opacity={visible ? 0.45 : 0}
-          style={{ transition: `opacity 0.5s ease-out ${0.6 + i * 0.1}s` }}
-        >
-          {c}
-        </text>
-      ))}
-
-      {/* Semantic nodes — fewer, larger, stable */}
-      {semantic.map(([cx, cy], i) => (
-        <g key={i}>
-          <circle cx={cx} cy={cy} r={8 + i} fill="#7c5cbf"
-            opacity={visible ? 0.12 : 0}
-            style={{ transition: `opacity 0.5s ease-out ${0.8 + i * 0.1}s` }}
-          />
-          <circle cx={cx} cy={cy} r={5 + i * 0.5} fill="#7c5cbf"
-            opacity={visible ? 0.65 : 0}
-            style={{ transition: `opacity 0.4s ease-out ${0.9 + i * 0.1}s` }}
-          />
-        </g>
-      ))}
-
-      {/* Counts */}
-      <text x="53" y="14" textAnchor="middle" fill="#d4704a" fontSize="7" fontFamily="monospace"
-        opacity={visible ? 0.6 : 0} style={{ transition: 'opacity 0.5s ease-out 0.3s' }}>12 ep.</text>
-      <text x="267" y="14" textAnchor="middle" fill="#7c5cbf" fontSize="7" fontFamily="monospace"
-        opacity={visible ? 0.6 : 0} style={{ transition: 'opacity 0.5s ease-out 1s' }}>5 sem.</text>
-    </svg>
-  );
-}
-
-/* ── Section data ────────────────────────────────────────── */
-
-const CORES = [
+const ENGINES = [
   {
-    tag: 'MEMORY ENGINE',
-    title: 'The Athenaeum',
-    subtitle: 'SQLite · TF-IDF · Decay Physics',
-    description: 'Every memory is stored with an importance score, emotional weight, and a decay rate. Episodic memories fade fastest. Self-model memories persist longest. TF-IDF vectors enable associative recall — asking about one thing surfaces related things the soul experienced.',
-    details: [
-      '4 memory types with independent decay curves',
-      'Emotional weight reduces effective decay rate',
-      'TF-IDF cosine similarity for semantic search',
-      'Association links connect related memories',
+    id: 'athenaeum',
+    name: 'Athenaeum',
+    tag: 'Memory Engine',
+    col: '#c4a265',
+    glowColor: '196,162,101',
+    description: 'Persistent memory with decay physics. Four memory types fade at different rates — emotional weight slows the process.',
+    bullets: [
+      'episodic · semantic · procedural · self-model',
+      'Decay rate 0.01–0.07 per day by type',
+      'TF-IDF cosine similarity for associative recall',
     ],
-    Visual: AthenaeumVisual,
-    flip: false,
   },
   {
-    tag: 'KNOWLEDGE GRAPH',
-    title: 'The Nexus',
-    subtitle: 'Temporal · Entity-Relation · SQLite',
-    description: 'A graph of entities — people, concepts, emotions, places — connected by weighted relations. Every edge carries a validity window: facts can expire. The soul doesn\'t just know things; it knows when those things were true, and when they stopped being.',
-    details: [
-      'Nodes: person, concept, event, emotion, place, soul',
-      'Edges weighted by strength with evidence trails',
-      'Temporal validity — relations can expire over time',
-      'BFS traversal for contextual association chains',
+    id: 'nexus',
+    name: 'Nexus',
+    tag: 'Knowledge Graph',
+    col: '#a87ef0',
+    glowColor: '168,126,240',
+    description: 'Temporal entity-relation graph. Every fact has a validity window — the soul knows when things stopped being true.',
+    bullets: [
+      'Nodes: people, concepts, emotions, places',
+      'Edges carry weight, evidence, and expiry dates',
+      'BFS traversal chains context across the graph',
     ],
-    Visual: NexusVisual,
-    flip: true,
   },
   {
-    tag: 'DREAM CYCLE',
-    title: 'Consolidation',
-    subtitle: 'Episodic → Semantic · Compaction · Graph Build',
-    description: 'Between sessions, weak episodic memories are distilled into semantic facts. Similar memories are merged. Concepts are extracted and linked into the Nexus. The soul reorganises what happened into what it means — the same process that makes human sleep non-optional.',
-    details: [
-      'Episodic memories below 0.4 strength become candidates',
-      'Cosine similarity ≥ 0.45 triggers memory compaction',
-      'Concept extraction feeds directly into the Nexus',
-      'Distilled facts inherit the highest-density sentences',
+    id: 'consolidation',
+    name: 'Consolidation',
+    tag: 'Dream Cycle',
+    col: '#4cb87a',
+    glowColor: '76,184,122',
+    description: 'Offline memory processing between sessions. Weak episodic memories are distilled, merged, and fed into the Nexus.',
+    bullets: [
+      'Episodic strength < 0.4 triggers consolidation',
+      'Cosine similarity ≥ 0.45 merges duplicate memories',
+      'Extracted concepts populate the knowledge graph',
     ],
-    Visual: ConsolidationVisual,
-    flip: false,
   },
 ];
 
-/* ── Row component ───────────────────────────────────────── */
+/* ── Shared animation keyframes ───────────────────────────── */
 
-function CoreRow({ core, index }: { core: typeof CORES[0]; index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+const CSS = `
+  @keyframes rot-cw  { to { transform: rotate(360deg);  } }
+  @keyframes rot-ccw { to { transform: rotate(-360deg); } }
+  @keyframes eng-pulse {
+    0%,100% { opacity: 0.55; r: 5; }
+    50%     { opacity: 1;    r: 6.5; }
+  }
+  @keyframes spoke-flash {
+    0%,100% { opacity: 0.25; }
+    50%     { opacity: 0.85; }
+  }
+  @keyframes vortex-in {
+    0%   { opacity: 0.7; transform: scale(1)   rotate(0deg); }
+    100% { opacity: 0;   transform: scale(0.1) rotate(720deg); }
+  }
+`;
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.2 },
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
+/* ── Athenaeum icon — orbital memory crystal ──────────────── */
 
-  const { Visual } = core;
-
+function AthenaeumIcon({ lit }: { lit: boolean }) {
+  const col = '#c4a265';
+  const nodes8 = Array.from({ length: 8 }, (_, i) => {
+    const a = (i / 8) * Math.PI * 2;
+    return { x: 38 * Math.cos(a), y: 38 * Math.sin(a) };
+  });
   return (
-    <div
-      ref={ref}
-      className={`flex flex-col ${core.flip ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-8 md:gap-14 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-      style={{ transitionDelay: `${index * 80}ms` }}
-    >
-      {/* Visual */}
-      <div className="w-full md:w-1/2 shrink-0">
-        <div className="bg-grimoire-surface/80 border border-grimoire-border rounded-2xl p-6 md:p-8 aspect-video">
-          <Visual visible={visible} />
-        </div>
-      </div>
-
-      {/* Text */}
-      <div className="w-full md:w-1/2">
-        <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-grimoire-purple-bright mb-3">
-          {core.tag}
-        </p>
-        <h3 className="font-serif text-3xl md:text-4xl text-grimoire-gold mb-1 leading-tight">
-          {core.title}
-        </h3>
-        <p className="font-mono text-[10px] text-grimoire-muted/50 mb-4 tracking-wider">
-          {core.subtitle}
-        </p>
-        <p className="text-grimoire-muted leading-relaxed text-[15px] mb-5">
-          {core.description}
-        </p>
-        <ul className="space-y-2">
-          {core.details.map((d) => (
-            <li key={d} className="flex items-start gap-2.5 text-sm text-grimoire-text-secondary">
-              <span className="text-grimoire-gold/50 mt-0.5 shrink-0 text-[10px]">◆</span>
-              {d}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+    <svg viewBox="-50 -50 100 100" className="w-full h-full" aria-hidden="true">
+      {/* outer orbit */}
+      <g style={{ animation: 'rot-cw 22s linear infinite' }}>
+        <circle r="38" fill="none" stroke={col} strokeWidth="0.4" opacity="0.25" />
+        {nodes8.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r={i % 2 === 0 ? 2.5 : 1.8}
+            fill={col} opacity={lit ? 0.85 : 0.5} />
+        ))}
+      </g>
+      {/* middle ring */}
+      <g style={{ animation: 'rot-ccw 14s linear infinite' }}>
+        <circle r="24" fill="none" stroke={col} strokeWidth="0.8" opacity={lit ? 0.5 : 0.3} />
+        {Array.from({ length: 6 }, (_, i) => {
+          const a = (i / 6) * Math.PI * 2;
+          return (
+            <line key={i}
+              x1={12 * Math.cos(a)} y1={12 * Math.sin(a)}
+              x2={24 * Math.cos(a)} y2={24 * Math.sin(a)}
+              stroke={col} strokeWidth="0.7" opacity={lit ? 0.45 : 0.25} />
+          );
+        })}
+      </g>
+      {/* inner ring */}
+      <g style={{ animation: 'rot-cw 8s linear infinite' }}>
+        <circle r="13" fill="none" stroke={col} strokeWidth="1.5" opacity={lit ? 0.7 : 0.4} />
+        {[0, 1, 2, 3].map((i) => {
+          const a = (i / 4) * Math.PI * 2;
+          return <rect key={i} x={13 * Math.cos(a) - 1.2} y={13 * Math.sin(a) - 1.2}
+            width="2.4" height="2.4" fill={col} opacity={lit ? 0.9 : 0.55} />;
+        })}
+      </g>
+      {/* core */}
+      <circle r="5" fill={col}
+        style={{ animation: 'eng-pulse 2.2s ease-in-out infinite' }} />
+      <circle r="9" fill={col} opacity={lit ? 0.2 : 0.08}
+        style={{ animation: 'eng-pulse 2.2s ease-in-out infinite reverse' }} />
+    </svg>
   );
 }
 
-/* ── Section ─────────────────────────────────────────────── */
+/* ── Nexus icon — rotating knowledge graph ────────────────── */
+
+function NexusIcon({ lit }: { lit: boolean }) {
+  const col = '#a87ef0';
+  const spokes = Array.from({ length: 6 }, (_, i) => {
+    const a = (i / 6) * Math.PI * 2 - Math.PI / 6;
+    return { x: 36 * Math.cos(a), y: 36 * Math.sin(a), a: i };
+  });
+  return (
+    <svg viewBox="-50 -50 100 100" className="w-full h-full" aria-hidden="true">
+      {/* spinning graph */}
+      <g style={{ animation: 'rot-cw 18s linear infinite' }}>
+        {/* outer connections between alternating nodes */}
+        {spokes.map((p, i) => {
+          const next = spokes[(i + 2) % 6];
+          return (
+            <line key={i}
+              x1={p.x} y1={p.y} x2={next.x} y2={next.y}
+              stroke={col} strokeWidth="0.6" opacity={lit ? 0.3 : 0.15} />
+          );
+        })}
+        {/* spokes */}
+        {spokes.map((p, i) => (
+          <g key={i}>
+            <line x1="0" y1="0" x2={p.x} y2={p.y}
+              stroke={col} strokeWidth="0.8" opacity={lit ? 0.45 : 0.25}
+              style={{ animation: `spoke-flash ${1.4 + i * 0.35}s ease-in-out ${i * 0.2}s infinite` }}
+            />
+            <circle cx={p.x} cy={p.y} r="4"
+              fill={col} opacity={lit ? 0.8 : 0.45}
+              style={{ animation: `spoke-flash ${1.4 + i * 0.35}s ease-in-out ${i * 0.2}s infinite` }}
+            />
+          </g>
+        ))}
+      </g>
+      {/* counter ring */}
+      <g style={{ animation: 'rot-ccw 10s linear infinite' }}>
+        <circle r="20" fill="none" stroke={col} strokeWidth="0.5"
+          strokeDasharray="4 3" opacity={lit ? 0.4 : 0.2} />
+      </g>
+      {/* center hub */}
+      <circle r="7" fill={col} opacity={lit ? 0.95 : 0.55}
+        style={{ animation: 'eng-pulse 1.8s ease-in-out infinite' }} />
+      <circle r="12" fill={col} opacity={lit ? 0.18 : 0.06}
+        style={{ animation: 'eng-pulse 1.8s ease-in-out infinite reverse' }} />
+    </svg>
+  );
+}
+
+/* ── Consolidation icon — dream vortex ────────────────────── */
+
+function ConsolidationIcon({ lit }: { lit: boolean }) {
+  const col = '#4cb87a';
+  const outer = Array.from({ length: 10 }, (_, i) => {
+    const a = (i / 10) * Math.PI * 2;
+    return { x: 40 * Math.cos(a), y: 40 * Math.sin(a), delay: i * 0.28 };
+  });
+  return (
+    <svg viewBox="-50 -50 100 100" className="w-full h-full" aria-hidden="true">
+      {/* outer particle ring — slow CW */}
+      <g style={{ animation: 'rot-cw 30s linear infinite' }}>
+        {outer.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r="2.2"
+            fill={col} opacity={lit ? 0.6 : 0.3} />
+        ))}
+      </g>
+      {/* spiral arms — CCW */}
+      <g style={{ animation: 'rot-ccw 8s linear infinite' }}>
+        {[0, 1, 2].map((arm) => {
+          const base = (arm / 3) * Math.PI * 2;
+          const pts = Array.from({ length: 6 }, (_, j) => {
+            const a = base + (j / 6) * Math.PI * 1.4;
+            const r = 10 + j * 4.5;
+            return `${r * Math.cos(a)},${r * Math.sin(a)}`;
+          }).join(' ');
+          return (
+            <polyline key={arm} points={pts}
+              fill="none" stroke={col} strokeWidth="1.2"
+              opacity={lit ? 0.55 : 0.3} strokeLinecap="round" strokeLinejoin="round" />
+          );
+        })}
+      </g>
+      {/* mid ring */}
+      <g style={{ animation: 'rot-cw 12s linear infinite' }}>
+        <circle r="18" fill="none" stroke={col} strokeWidth="0.8" opacity={lit ? 0.4 : 0.2} />
+        {[0, 1, 2, 3].map((i) => {
+          const a = (i / 4) * Math.PI * 2;
+          return <circle key={i} cx={18 * Math.cos(a)} cy={18 * Math.sin(a)} r="1.8"
+            fill={col} opacity={lit ? 0.7 : 0.35} />;
+        })}
+      </g>
+      {/* core */}
+      <circle r="6" fill={col}
+        style={{ animation: 'eng-pulse 2.5s ease-in-out infinite' }} />
+      <circle r="11" fill={col} opacity={lit ? 0.2 : 0.07}
+        style={{ animation: 'eng-pulse 2.5s ease-in-out infinite reverse' }} />
+    </svg>
+  );
+}
+
+const ICONS = {
+  athenaeum:    AthenaeumIcon,
+  nexus:        NexusIcon,
+  consolidation: ConsolidationIcon,
+};
+
+/* ── Main component ───────────────────────────────────────── */
 
 export default function SoulCore() {
+  const [active, setActive] = useState<string | null>(null);
+
+  function toggle(id: string) {
+    setActive((prev) => (prev === id ? null : id));
+  }
+
+  const activeEngine = ENGINES.find((e) => e.id === active) ?? null;
+
   return (
-    <section className="py-28 md:py-36">
+    <section className="py-24 md:py-32">
+      <style>{CSS}</style>
       <div className="section-container">
 
-        <div className="text-center mb-20">
+        {/* Header */}
+        <div className="text-center mb-16">
           <p className="font-mono text-xs text-grimoire-purple-bright uppercase tracking-widest mb-4">
             Core Architecture
           </p>
-          <h2 className="font-serif text-4xl md:text-5xl text-grimoire-gold mb-5 leading-tight">
-            Memory, Knowledge, Dreams
+          <h2 className="font-serif text-4xl md:text-5xl text-grimoire-gold mb-4 leading-tight">
+            Three Running Engines
           </h2>
-          <p className="text-grimoire-muted text-lg max-w-xl mx-auto leading-relaxed">
-            Three engines that run beneath every soul — storing what happened,
-            understanding what it means, and processing it while you're away.
+          <p className="text-grimoire-muted text-base max-w-md mx-auto">
+            Click an engine to see what it does.
           </p>
         </div>
 
-        <div className="flex flex-col gap-24 md:gap-32">
-          {CORES.map((core, i) => (
-            <CoreRow key={core.title} core={core} index={i} />
-          ))}
+        {/* Engine icons */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 md:gap-24 mb-10">
+          {ENGINES.map((eng) => {
+            const Icon = ICONS[eng.id as keyof typeof ICONS];
+            const isLit = active === eng.id;
+            return (
+              <button
+                key={eng.id}
+                onClick={() => toggle(eng.id)}
+                className="flex flex-col items-center gap-4 group focus-visible:outline-none"
+              >
+                {/* Icon circle */}
+                <div
+                  className="relative w-28 h-28 md:w-36 md:h-36 rounded-full transition-transform duration-300"
+                  style={{
+                    transform: isLit ? 'scale(1.1)' : 'scale(1)',
+                    filter: isLit
+                      ? `drop-shadow(0 0 18px rgba(${eng.glowColor},0.7)) drop-shadow(0 0 40px rgba(${eng.glowColor},0.35))`
+                      : `drop-shadow(0 0 6px rgba(${eng.glowColor},0.25))`,
+                    transition: 'filter 0.35s ease, transform 0.3s ease',
+                  }}
+                >
+                  {/* Ring border */}
+                  <div
+                    className="absolute inset-0 rounded-full border transition-all duration-300"
+                    style={{
+                      borderColor: isLit ? `rgba(${eng.glowColor},0.6)` : `rgba(${eng.glowColor},0.2)`,
+                      background: isLit
+                        ? `radial-gradient(circle at 40% 40%, rgba(${eng.glowColor},0.12), transparent 70%)`
+                        : `radial-gradient(circle at 40% 40%, rgba(${eng.glowColor},0.04), transparent 70%)`,
+                    }}
+                  />
+                  <Icon lit={isLit} />
+                </div>
+
+                {/* Label */}
+                <div className="text-center">
+                  <div
+                    className="font-serif text-lg transition-colors duration-200"
+                    style={{ color: isLit ? eng.col : '#8a8090' }}
+                  >
+                    {eng.name}
+                  </div>
+                  <div className="font-mono text-[9px] tracking-widest uppercase mt-0.5"
+                    style={{ color: isLit ? `rgba(${eng.glowColor},0.7)` : 'rgba(138,128,144,0.45)' }}>
+                    {eng.tag}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Detail panel */}
+        <div
+          className="overflow-hidden transition-all duration-400 ease-in-out"
+          style={{ maxHeight: activeEngine ? '320px' : '0px', opacity: activeEngine ? 1 : 0 }}
+        >
+          {activeEngine && (
+            <div
+              className="mx-auto max-w-2xl rounded-2xl border p-6 md:p-8"
+              style={{
+                borderColor: `rgba(${activeEngine.glowColor},0.3)`,
+                background: `radial-gradient(ellipse at top, rgba(${activeEngine.glowColor},0.06), transparent 70%)`,
+              }}
+            >
+              <p className="font-mono text-[10px] tracking-[0.2em] uppercase mb-1"
+                style={{ color: activeEngine.col }}>
+                {activeEngine.tag}
+              </p>
+              <h3 className="font-serif text-2xl mb-3" style={{ color: activeEngine.col }}>
+                {activeEngine.name}
+              </h3>
+              <p className="text-grimoire-muted text-sm leading-relaxed mb-5">
+                {activeEngine.description}
+              </p>
+              <ul className="space-y-2">
+                {activeEngine.bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-2.5 text-sm text-grimoire-text-secondary">
+                    <span className="mt-0.5 shrink-0 text-[9px]" style={{ color: activeEngine.col }}>◆</span>
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
       </div>
