@@ -3,36 +3,30 @@
 import { useEffect, useRef, useState } from 'react';
 import { REGISTRY_URL, type SoulEntry } from '@/lib/registry-types';
 
-const ANIME_TAGS = new Set(['anime', 'manhwa', 'manga']);
-
-const MAL_OVERRIDES: Record<string, string> = {
-  sungjinwoo: 'Sung Jinwoo',
-};
-const WIKI_OVERRIDES: Record<string, string> = {
-  walterwhite: 'Walter White (Breaking Bad)',
+const WIKI_TITLES: Record<string, string> = {
+  sungjinwoo:       'Sung Jin-woo',
+  lelouch:          'Lelouch vi Britannia',
+  vegeta:           'Vegeta (Dragon Ball)',
+  gilgamesh:        'Gilgamesh (Fate/stay night)',
+  lightyagami:      'Light Yagami',
+  itachi:           'Itachi Uchiha',
+  gojo:             'Satoru Gojo',
+  levi:             'Levi (Attack on Titan)',
+  roymustang:       'Roy Mustang',
+  edwardelric:      'Edward Elric',
+  diobrando:        'Dio Brando',
+  walterwhite:      'Walter White (Breaking Bad)',
 };
 
 async function fetchPortrait(soul: SoulEntry): Promise<string | null> {
-  if (soul.tags.some((t) => ANIME_TAGS.has(t))) {
-    try {
-      const q = MAL_OVERRIDES[soul.name] ?? soul.displayName;
-      const res = await fetch(
-        `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(q)}&limit=1`,
-      );
-      const json = await res.json();
-      const entry = json?.data?.[0];
-      return (entry?.images?.jpg?.large_image_url ?? entry?.images?.jpg?.image_url) ?? null;
-    } catch { return null; }
-  } else {
-    try {
-      const title = WIKI_OVERRIDES[soul.name] ?? soul.displayName;
-      const res = await fetch(
-        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
-      );
-      const json = await res.json();
-      return json?.thumbnail?.source ?? null;
-    } catch { return null; }
-  }
+  const title = WIKI_TITLES[soul.name] ?? soul.displayName;
+  try {
+    const res = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
+    );
+    const json = await res.json();
+    return json?.thumbnail?.source ?? null;
+  } catch { return null; }
 }
 
 // Character-specific color palettes [dark-bg, mid, accent]
