@@ -568,11 +568,16 @@ function drawNodes(){
     ctx.globalAlpha=alpha;ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1.5;
     ctx.beginPath();ctx.arc(n.x,n.y,drawR+2,-Math.PI/2,-Math.PI/2+Math.PI*2*n.str);ctx.stroke();
     if(isSel){
-      ctx.shadowColor=COL[n.type];ctx.shadowBlur=48;
-      ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=2.5;ctx.globalAlpha=1;
-      ctx.beginPath();ctx.arc(n.x,n.y,drawR+5,0,Math.PI*2);ctx.stroke();
-      ctx.shadowBlur=24;ctx.strokeStyle=COL[n.type];ctx.lineWidth=1.5;ctx.globalAlpha=.4;
-      ctx.beginPath();ctx.arc(n.x,n.y,drawR+16,0,Math.PI*2);ctx.stroke();
+      const [cr,cg,cb]=_ph(COL[n.type]);
+      const ig=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,drawR*1.5);
+      ig.addColorStop(0,`rgba(${cr},${cg},${cb},.58)`);
+      ig.addColorStop(.5,`rgba(${cr},${cg},${cb},.2)`);
+      ig.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.globalAlpha=1;ctx.shadowBlur=0;
+      ctx.beginPath();ctx.arc(n.x,n.y,drawR*1.5,0,Math.PI*2);ctx.fillStyle=ig;ctx.fill();
+      ctx.shadowColor=COL[n.type];ctx.shadowBlur=44;
+      ctx.strokeStyle='rgba(255,255,255,.88)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.arc(n.x,n.y,drawR+6,0,Math.PI*2);ctx.stroke();
     }
     ctx.restore();
   });
@@ -689,11 +694,16 @@ function drawExtras(){
     const r=lit?s.r+3:hov?s.r+1.5:s.r;
     drawTri(s.x,s.y,r,s.col,glow,alpha);
     if(lit){
-      ctx.save();ctx.shadowColor=s.col;ctx.shadowBlur=30;
-      ctx.globalAlpha=.65;ctx.strokeStyle=s.col;ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.arc(s.x,s.y,r+6,0,Math.PI*2);ctx.stroke();
-      ctx.shadowBlur=12;ctx.globalAlpha=.3;ctx.lineWidth=1;
-      ctx.beginPath();ctx.arc(s.x,s.y,r+15,0,Math.PI*2);ctx.stroke();
+      const [cr,cg,cb]=_ph(s.col);
+      ctx.save();ctx.shadowBlur=0;ctx.globalAlpha=1;
+      const ig=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,r*2.4);
+      ig.addColorStop(0,`rgba(${cr},${cg},${cb},.55)`);
+      ig.addColorStop(.5,`rgba(${cr},${cg},${cb},.18)`);
+      ig.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.beginPath();ctx.arc(s.x,s.y,r*2.4,0,Math.PI*2);ctx.fillStyle=ig;ctx.fill();
+      ctx.shadowColor=s.col;ctx.shadowBlur=38;
+      ctx.strokeStyle=s.col;ctx.lineWidth=1.5;ctx.globalAlpha=.72;
+      ctx.beginPath();ctx.arc(s.x,s.y,r+7,0,Math.PI*2);ctx.stroke();
       ctx.restore();
     }
   });
@@ -708,11 +718,16 @@ function drawExtras(){
     const r=lit?s.r+4:hov?s.r+2:s.r;
     drawDiamond(s.x,s.y,r,s.col,glow,alpha,t*s._rotSpeed+s._baseRot);
     if(lit){
-      ctx.save();ctx.shadowColor=s.col;ctx.shadowBlur=35;
-      ctx.globalAlpha=.65;ctx.strokeStyle=s.col;ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.arc(s.x,s.y,r+8,0,Math.PI*2);ctx.stroke();
-      ctx.shadowBlur=14;ctx.globalAlpha=.3;ctx.lineWidth=1;
-      ctx.beginPath();ctx.arc(s.x,s.y,r+18,0,Math.PI*2);ctx.stroke();
+      const [cr,cg,cb]=_ph(s.col);
+      ctx.save();ctx.shadowBlur=0;ctx.globalAlpha=1;
+      const ig=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,r*2.4);
+      ig.addColorStop(0,`rgba(${cr},${cg},${cb},.55)`);
+      ig.addColorStop(.5,`rgba(${cr},${cg},${cb},.18)`);
+      ig.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.beginPath();ctx.arc(s.x,s.y,r*2.4,0,Math.PI*2);ctx.fillStyle=ig;ctx.fill();
+      ctx.shadowColor=s.col;ctx.shadowBlur=38;
+      ctx.strokeStyle=s.col;ctx.lineWidth=1.5;ctx.globalAlpha=.72;
+      ctx.beginPath();ctx.arc(s.x,s.y,r+9,0,Math.PI*2);ctx.stroke();
       ctx.restore();
     }
   });
@@ -727,11 +742,16 @@ function drawExtras(){
     const r=lit?s.r+4:hov?s.r+2:s.r;
     drawHex(s.x,s.y,r,s.col,glow,alpha,s.data.cracked);
     if(lit){
-      ctx.save();ctx.shadowColor='#ef4444';ctx.shadowBlur=38;
-      ctx.globalAlpha=.65;ctx.strokeStyle='#ef4444';ctx.lineWidth=1.5;
-      ctx.beginPath();ctx.arc(s.x,s.y,r+7,0,Math.PI*2);ctx.stroke();
-      ctx.shadowBlur=16;ctx.globalAlpha=.3;ctx.lineWidth=1;
-      ctx.beginPath();ctx.arc(s.x,s.y,r+18,0,Math.PI*2);ctx.stroke();
+      const [cr,cg,cb]=_ph(s.col);
+      ctx.save();ctx.shadowBlur=0;ctx.globalAlpha=1;
+      const ig=ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,r*2.2);
+      ig.addColorStop(0,`rgba(${cr},${cg},${cb},.55)`);
+      ig.addColorStop(.5,`rgba(${cr},${cg},${cb},.18)`);
+      ig.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.beginPath();ctx.arc(s.x,s.y,r*2.2,0,Math.PI*2);ctx.fillStyle=ig;ctx.fill();
+      ctx.shadowColor=s.col;ctx.shadowBlur=40;
+      ctx.strokeStyle=s.col;ctx.lineWidth=1.5;ctx.globalAlpha=.72;
+      ctx.beginPath();ctx.arc(s.x,s.y,r+8,0,Math.PI*2);ctx.stroke();
       ctx.restore();
     }
   });
