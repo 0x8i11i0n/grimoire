@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { REGISTRY_URL, type SoulEntry } from '@/lib/registry-types';
 
+const ANIME_TAGS = new Set(['anime', 'manhwa', 'manga']);
+
 const WIKI_TITLES: Record<string, string> = {
   sungjinwoo:       'Sung Jin-woo',
   lelouch:          'Lelouch vi Britannia',
@@ -18,15 +20,37 @@ const WIKI_TITLES: Record<string, string> = {
   walterwhite:      'Walter White (Breaking Bad)',
 };
 
+const MAL_OVERRIDES: Record<string, string> = {
+  sungjinwoo: 'Sung Jinwoo',
+  lelouch:    'Lelouch Lamperouge',
+  levi:       'Levi Ackerman',
+};
+
 async function fetchPortrait(soul: SoulEntry): Promise<string | null> {
+  // Try Wikipedia first (fast)
   const title = WIKI_TITLES[soul.name] ?? soul.displayName;
   try {
     const res = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
     );
     const json = await res.json();
-    return json?.thumbnail?.source ?? null;
-  } catch { return null; }
+    if (json?.thumbnail?.source) return json.thumbnail.source as string;
+  } catch {}
+
+  // Fallback to Jikan for anime/manhwa/manga souls
+  if (soul.tags.some((t) => ANIME_TAGS.has(t))) {
+    try {
+      const q = MAL_OVERRIDES[soul.name] ?? soul.displayName;
+      const res = await fetch(
+        `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(q)}&limit=1`,
+      );
+      const json = await res.json();
+      const entry = json?.data?.[0];
+      return (entry?.images?.jpg?.large_image_url ?? entry?.images?.jpg?.image_url) ?? null;
+    } catch {}
+  }
+
+  return null;
 }
 
 // Character-specific color palettes [dark-bg, mid, accent]

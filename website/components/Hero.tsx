@@ -84,11 +84,16 @@ export default function Hero() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-grimoire-purple/[0.035] blur-[140px]" />
       </div>
 
+      {/* Mobile: canvas as semi-transparent background */}
+      <div className="lg:hidden absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <MiniBrainCanvas className="w-full h-full opacity-25" />
+      </div>
+
       {/* Two-column layout */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-10 lg:gap-0 py-28 lg:py-0 min-h-screen">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 flex flex-row items-center lg:gap-0 min-h-screen">
 
         {/* ── LEFT: text content ── */}
-        <div className="flex-1 flex flex-col items-center lg:items-start gap-6 text-center lg:text-left lg:pr-12">
+        <div className="flex-1 flex flex-col items-center lg:items-start gap-6 text-center lg:text-left py-24 lg:py-0 lg:pr-12">
           {/* Title */}
           <div className="flex items-center gap-4 animate-fade-in select-none">
             <LogoDiamond className="w-8 h-8 sm:w-10 sm:h-10 text-grimoire-gold" />
@@ -163,15 +168,12 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* ── RIGHT: mini brain canvas ── */}
-        <div className="w-full lg:w-[480px] lg:h-screen lg:max-h-[700px] shrink-0 relative animate-fade-in [animation-delay:200ms]">
-          {/* Mobile: fixed height */}
-          <div className="w-full h-[340px] sm:h-[420px] lg:h-full">
-            <MiniBrainCanvas className="w-full h-full" />
-          </div>
+        {/* ── RIGHT: mini brain canvas — desktop only ── */}
+        <div className="hidden lg:block lg:w-[480px] lg:h-screen lg:max-h-[700px] shrink-0 relative animate-fade-in [animation-delay:200ms]">
+          <MiniBrainCanvas className="w-full h-full" />
 
           {/* Decorative label */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 lg:bottom-8 pointer-events-none">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-none">
             <p className="font-mono text-[9px] tracking-[0.25em] text-grimoire-purple/35 uppercase text-center">
               ◈ shadow monarch
             </p>
