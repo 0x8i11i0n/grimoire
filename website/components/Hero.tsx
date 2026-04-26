@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import MiniBrainCanvas from './MiniBrainCanvas';
 
 /* ── SVG Logo diamond ────────────────────────────────────────────── */
@@ -53,10 +53,22 @@ function ScrollChevron() {
 
 /* ── Hero ─────────────────────────────────────────────────────────── */
 
+function formatStars(n: number): string {
+  return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n);
+}
+
 export default function Hero() {
   const [copied, setCopied] = useState(false);
+  const [stars, setStars] = useState<number | null>(null);
 
   const installCmd = 'npm install github:0x8i11i0n/grimoire';
+
+  useEffect(() => {
+    fetch('https://api.github.com/repos/0x8i11i0n/grimoire')
+      .then((r) => r.json())
+      .then((d) => { if (typeof d?.stargazers_count === 'number') setStars(d.stargazers_count); })
+      .catch(() => {});
+  }, []);
 
   const handleCopy = useCallback(async () => {
     try {
@@ -145,6 +157,20 @@ export default function Hero() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
               </svg>
+            </a>
+
+            {/* GitHub star count */}
+            <a
+              href="https://github.com/0x8i11i0n/grimoire/stargazers"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-grimoire-gold/25 bg-grimoire-gold/[0.06] text-grimoire-gold hover:border-grimoire-gold/50 hover:bg-grimoire-gold/10 transition-all duration-200 font-mono text-sm"
+              style={{ boxShadow: '0 0 16px rgba(196,162,101,0.18)' }}
+            >
+              <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              <span className="tabular-nums">{stars !== null ? formatStars(stars) : '—'}</span>
             </a>
           </div>
 
