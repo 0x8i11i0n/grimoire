@@ -1,7 +1,9 @@
 import Navigation from '@/components/Navigation';
 import Hero from '@/components/Hero';
+import DriftTicker from '@/components/DriftTicker';
 import SystemsShowcase from '@/components/SystemsShowcase';
 import Philosophy from '@/components/Philosophy';
+import SoulGallery from '@/components/SoulGallery';
 import ComparisonTable from '@/components/ComparisonTable';
 import QuickStart from '@/components/QuickStart';
 import Ecosystem from '@/components/Ecosystem';
@@ -13,8 +15,10 @@ export default function Home() {
       <Navigation />
       <main>
         <Hero />
+        <DriftTicker />
         <SystemsShowcase />
         <Philosophy />
+        <SoulGallery />
         <ComparisonTable />
         <QuickStart />
         <Ecosystem />

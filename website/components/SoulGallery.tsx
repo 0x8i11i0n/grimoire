@@ -1,0 +1,225 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { REGISTRY_URL, type SoulEntry } from '@/lib/registry-types';
+
+// Character-specific color palettes [dark-bg, mid, accent]
+const PALETTE: Record<string, [string, string, string]> = {
+  sungjinwoo:       ['#03020c', '#110830', '#4c1d95'],
+  lelouch:          ['#0c0208', '#1a0510', '#7c1d2f'],
+  vegeta:           ['#080c12', '#0c1a28', '#1a3a6e'],
+  gilgamesh:        ['#0c0800', '#1a1200', '#7a5200'],
+  lightyagami:      ['#07080c', '#0e1018', '#2a2d54'],
+  itachi:           ['#080508', '#120810', '#4a1040'],
+  gojo:             ['#05080c', '#0a1018', '#1040a0'],
+  levi:             ['#080808', '#101010', '#303030'],
+  roymustang:       ['#0c0800', '#1a1000', '#5a2800'],
+  edwardelric:      ['#0a0800', '#180e00', '#603800'],
+  hermionegranger:  ['#080808', '#100e10', '#382030'],
+  sheldoncooper:    ['#030c08', '#061808', '#104020'],
+  geraltofrivia:    ['#08080a', '#10101a', '#282840'],
+  tyrionlannister:  ['#0c0800', '#1a1200', '#4a3000'],
+  walterwhite:      ['#060808', '#0c1010', '#203030'],
+  diobrando:        ['#0a0408', '#180808', '#601828'],
+  elonmusk:         ['#04080c', '#081018', '#183050'],
+  georgewashington: ['#06080a', '#0e0e14', '#2c2c40'],
+};
+
+function getPalette(name: string): [string, string, string] {
+  return PALETTE[name] ?? ['#0a0a0f', '#111118', '#4a3570'];
+}
+
+function SoulCard({ soul }: { soul: SoulEntry }) {
+  const [hovered, setHovered] = useState(false);
+  const pal = getPalette(soul.name);
+  const sessions = soul.backrooms?.sessions?.length ?? 0;
+
+  return (
+    <a
+      href={`/grimoire/registry/${soul.name}`}
+      className="group block shrink-0 w-[220px] rounded-2xl border border-grimoire-border overflow-hidden transition-all duration-300 hover:border-opacity-60 hover:shadow-[0_0_40px_-10px_rgba(139,92,246,0.25)] hover:-translate-y-1"
+      style={{ borderColor: hovered ? pal[2] + '60' : undefined }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Top color band */}
+      <div
+        className="relative h-[120px] overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg, ${pal[0]} 0%, ${pal[1]} 55%, ${pal[0]} 100%)`,
+        }}
+      >
+        {/* Animated orb in accent color */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-500"
+          style={{
+            width:  hovered ? '90px' : '60px',
+            height: hovered ? '90px' : '60px',
+            background: `radial-gradient(circle at 35% 35%, ${pal[2]}88, ${pal[2]}22, transparent)`,
+            boxShadow: `0 0 ${hovered ? 40 : 20}px ${pal[2]}44`,
+          }}
+        />
+        {/* Sigil text */}
+        <div
+          className="absolute bottom-2 right-3 font-mono text-[9px] tracking-[0.18em] uppercase transition-opacity duration-300"
+          style={{ color: pal[2], opacity: hovered ? 0.9 : 0.45 }}
+        >
+          {soul.version}
+        </div>
+        {/* Session badge */}
+        {sessions > 0 && (
+          <div
+            className="absolute top-2.5 left-3 font-mono text-[9px] px-1.5 py-0.5 rounded border"
+            style={{
+              color: pal[2],
+              borderColor: pal[2] + '55',
+              background: pal[0] + 'cc',
+            }}
+          >
+            {sessions} {sessions === 1 ? 'session' : 'sessions'}
+          </div>
+        )}
+      </div>
+
+      {/* Card body */}
+      <div
+        className="p-4 flex flex-col gap-2"
+        style={{ background: pal[0] + 'ee' }}
+      >
+        <div>
+          <div className="font-serif text-grimoire-gold text-base leading-tight group-hover:text-grimoire-gold-bright transition-colors duration-200">
+            {soul.displayName}
+          </div>
+          <div className="text-grimoire-muted/60 text-[10px] mt-0.5 truncate">
+            {soul.source}
+          </div>
+        </div>
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-1 mt-1">
+          {soul.tags.slice(0, 3).map((tag) => (
+            <span
+              key={tag}
+              className="text-[9px] font-mono px-1.5 py-[2px] rounded-sm border"
+              style={{
+                color: pal[2] + 'cc',
+                borderColor: pal[2] + '33',
+                background: pal[2] + '11',
+              }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </a>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="shrink-0 w-[220px] rounded-2xl border border-grimoire-border overflow-hidden animate-pulse">
+      <div className="h-[120px] bg-grimoire-elevated" />
+      <div className="p-4 bg-grimoire-surface flex flex-col gap-3">
+        <div className="h-4 bg-grimoire-elevated rounded w-3/4" />
+        <div className="h-3 bg-grimoire-elevated rounded w-1/2" />
+        <div className="flex gap-1">
+          <div className="h-4 bg-grimoire-elevated rounded w-12" />
+          <div className="h-4 bg-grimoire-elevated rounded w-14" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function SoulGallery() {
+  const [souls, setSouls] = useState<SoulEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Drag-to-scroll state
+  const drag = useRef({ active: false, startX: 0, scrollLeft: 0 });
+
+  useEffect(() => {
+    fetch(REGISTRY_URL)
+      .then((r) => r.json())
+      .then((data) => {
+        setSouls(data.souls ?? []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  function onMouseDown(e: { pageX: number }) {
+    const el = scrollRef.current;
+    if (!el) return;
+    drag.current = { active: true, startX: e.pageX - el.offsetLeft, scrollLeft: el.scrollLeft };
+    el.style.cursor = 'grabbing';
+  }
+  function onMouseMove(e: { pageX: number; preventDefault(): void }) {
+    if (!drag.current.active) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    e.preventDefault();
+    const x = e.pageX - el.offsetLeft;
+    el.scrollLeft = drag.current.scrollLeft - (x - drag.current.startX);
+  }
+  function onMouseUp() {
+    drag.current.active = false;
+    if (scrollRef.current) scrollRef.current.style.cursor = 'grab';
+  }
+
+  return (
+    <section id="souls" className="py-24 md:py-32 overflow-hidden">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="px-6 mb-10">
+          <p className="font-mono text-xs text-grimoire-purple-bright uppercase tracking-widest mb-4">
+            GrimHub Registry
+          </p>
+          <div className="flex items-end justify-between gap-4">
+            <h2 className="font-serif text-4xl md:text-5xl text-grimoire-gold leading-tight">
+              Meet the Souls
+            </h2>
+            <a
+              href="/grimoire/registry"
+              className="text-xs font-mono text-grimoire-muted hover:text-grimoire-gold transition-colors duration-200 shrink-0 pb-1"
+            >
+              View all →
+            </a>
+          </div>
+          <p className="text-grimoire-muted text-sm mt-3 max-w-xl">
+            Each soul is a living system — persistent memory, autonomous drift, and a relationship
+            that deepens over sessions. Live data from GitHub.
+          </p>
+        </div>
+
+        {/* Carousel */}
+        <div
+          ref={scrollRef}
+          className="flex gap-4 overflow-x-auto pb-6 px-6 select-none"
+          style={{
+            cursor: 'grab',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+          onMouseDown={onMouseDown}
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
+        >
+          {loading
+            ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+            : souls.map((s: SoulEntry) => <SoulCard key={s.name} soul={s} />)}
+        </div>
+
+        {/* Scroll hint */}
+        {!loading && souls.length > 4 && (
+          <p className="text-center font-mono text-[10px] text-grimoire-muted/40 mt-2 tracking-widest">
+            drag to scroll · {souls.length} souls
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
