@@ -17,8 +17,8 @@ export default function Home() {
       <main>
         <Hero />
         <DriftTicker />
-        <SystemsShowcase />
         <SoulCore />
+        <SystemsShowcase />
         <Philosophy />
         <SoulGallery />
         <ComparisonTable />
