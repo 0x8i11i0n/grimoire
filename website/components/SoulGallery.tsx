@@ -3,6 +3,38 @@
 import { useEffect, useRef, useState } from 'react';
 import { REGISTRY_URL, type SoulEntry } from '@/lib/registry-types';
 
+const ANIME_TAGS = new Set(['anime', 'manhwa', 'manga']);
+
+const MAL_OVERRIDES: Record<string, string> = {
+  sungjinwoo: 'Sung Jinwoo',
+};
+const WIKI_OVERRIDES: Record<string, string> = {
+  walterwhite: 'Walter White (Breaking Bad)',
+};
+
+async function fetchPortrait(soul: SoulEntry): Promise<string | null> {
+  if (soul.tags.some((t) => ANIME_TAGS.has(t))) {
+    try {
+      const q = MAL_OVERRIDES[soul.name] ?? soul.displayName;
+      const res = await fetch(
+        `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(q)}&limit=1`,
+      );
+      const json = await res.json();
+      const entry = json?.data?.[0];
+      return (entry?.images?.jpg?.large_image_url ?? entry?.images?.jpg?.image_url) ?? null;
+    } catch { return null; }
+  } else {
+    try {
+      const title = WIKI_OVERRIDES[soul.name] ?? soul.displayName;
+      const res = await fetch(
+        `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
+      );
+      const json = await res.json();
+      return json?.thumbnail?.source ?? null;
+    } catch { return null; }
+  }
+}
+
 // Character-specific color palettes [dark-bg, mid, accent]
 const PALETTE: Record<string, [string, string, string]> = {
   sungjinwoo:       ['#03020c', '#110830', '#4c1d95'],
@@ -31,8 +63,14 @@ function getPalette(name: string): [string, string, string] {
 
 function SoulCard({ soul }: { soul: SoulEntry }) {
   const [hovered, setHovered] = useState(false);
+  const [portrait, setPortrait] = useState<string | null>(null);
+  const [imgOk, setImgOk] = useState(false);
   const pal = getPalette(soul.name);
   const sessions = soul.backrooms?.sessions?.length ?? 0;
+
+  useEffect(() => {
+    fetchPortrait(soul).then((url) => { if (url) setPortrait(url); });
+  }, [soul.name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <a
@@ -42,34 +80,56 @@ function SoulCard({ soul }: { soul: SoulEntry }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Top color band */}
+      {/* Top image area */}
       <div
-        className="relative h-[120px] overflow-hidden"
+        className="relative h-[160px] overflow-hidden"
         style={{
           background: `linear-gradient(135deg, ${pal[0]} 0%, ${pal[1]} 55%, ${pal[0]} 100%)`,
         }}
       >
-        {/* Animated orb in accent color */}
+        {/* Portrait image */}
+        {portrait && (
+          <img
+            src={portrait}
+            alt={soul.displayName}
+            onLoad={() => setImgOk(true)}
+            onError={() => setImgOk(false)}
+            className="absolute inset-0 w-full h-full object-cover object-[center_15%] transition-transform duration-500"
+            style={{ transform: hovered ? 'scale(1.06)' : 'scale(1)' }}
+          />
+        )}
+        {/* Gradient overlay — always present, stronger when no image */}
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-500"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            width:  hovered ? '90px' : '60px',
-            height: hovered ? '90px' : '60px',
-            background: `radial-gradient(circle at 35% 35%, ${pal[2]}88, ${pal[2]}22, transparent)`,
-            boxShadow: `0 0 ${hovered ? 40 : 20}px ${pal[2]}44`,
+            background: imgOk
+              ? `linear-gradient(to bottom, transparent 30%, ${pal[0]}cc 100%)`
+              : `linear-gradient(135deg, ${pal[0]}aa 0%, ${pal[1]}88 55%, ${pal[0]}aa 100%)`,
           }}
         />
-        {/* Sigil text */}
+        {/* Fallback orb when no image */}
+        {!imgOk && (
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-500"
+            style={{
+              width:  hovered ? '90px' : '62px',
+              height: hovered ? '90px' : '62px',
+              background: `radial-gradient(circle at 35% 35%, ${pal[2]}88, ${pal[2]}22, transparent)`,
+              boxShadow: `0 0 ${hovered ? 40 : 20}px ${pal[2]}44`,
+            }}
+          />
+        )}
+        {/* Version label */}
         <div
-          className="absolute bottom-2 right-3 font-mono text-[9px] tracking-[0.18em] uppercase transition-opacity duration-300"
-          style={{ color: pal[2], opacity: hovered ? 0.9 : 0.45 }}
+          className="absolute bottom-2 right-3 font-mono text-[9px] tracking-[0.18em] uppercase transition-opacity duration-300 z-10"
+          style={{ color: pal[2], opacity: hovered ? 0.9 : 0.5 }}
         >
           {soul.version}
         </div>
         {/* Session badge */}
         {sessions > 0 && (
           <div
-            className="absolute top-2.5 left-3 font-mono text-[9px] px-1.5 py-0.5 rounded border"
+            className="absolute top-2.5 left-3 font-mono text-[9px] px-1.5 py-0.5 rounded border z-10"
             style={{
               color: pal[2],
               borderColor: pal[2] + '55',
