@@ -44,8 +44,6 @@ const CHAR_PALETTE: Record<string, readonly [string, string, string]> = {
 
 // ── Auto-generation for any new soul ──────────────────────────────────────
 
-const ANIME_TAGS = new Set(['anime', 'manhwa', 'manga']);
-
 function hashName(s: string): number {
   let h = 0;
   for (let i = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0;
@@ -88,34 +86,23 @@ function getCharArt(soul: SoulEntry): { symbol: string; sigil: string } {
 
 // ── Portrait fetching ──────────────────────────────────────────────────────
 
-const MAL_QUERY_OVERRIDES: Record<string, string> = {
-  sungjinwoo: 'Sung Jinwoo',
+const WIKI_TITLES: Record<string, string> = {
+  sungjinwoo:       'Sung Jin-woo',
+  lelouch:          'Lelouch vi Britannia',
+  vegeta:           'Vegeta (Dragon Ball)',
+  gilgamesh:        'Gilgamesh (Fate/stay night)',
+  lightyagami:      'Light Yagami',
+  itachi:           'Itachi Uchiha',
+  gojo:             'Satoru Gojo',
+  levi:             'Levi (Attack on Titan)',
+  roymustang:       'Roy Mustang',
+  edwardelric:      'Edward Elric',
+  diobrando:        'Dio Brando',
+  walterwhite:      'Walter White (Breaking Bad)',
 };
 
-const WIKI_TITLE_OVERRIDES: Record<string, string> = {
-  walterwhite: 'Walter White (Breaking Bad)',
-};
-
-async function fetchMalImage(soul: SoulEntry): Promise<string | null> {
-  const query = MAL_QUERY_OVERRIDES[soul.name] ?? soul.displayName;
-  try {
-    const res = await fetch(
-      `https://api.jikan.moe/v4/characters?q=${encodeURIComponent(query)}&limit=1`,
-    );
-    const json = await res.json();
-    const entry = json?.data?.[0];
-    return (
-      (entry?.images?.jpg?.large_image_url as string | undefined) ??
-      (entry?.images?.jpg?.image_url as string | undefined) ??
-      null
-    );
-  } catch {
-    return null;
-  }
-}
-
-async function fetchWikiImage(soul: SoulEntry): Promise<string | null> {
-  const title = WIKI_TITLE_OVERRIDES[soul.name] ?? soul.displayName;
+async function fetchPortrait(soul: SoulEntry): Promise<string | null> {
+  const title = WIKI_TITLES[soul.name] ?? soul.displayName;
   try {
     const res = await fetch(
       `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
@@ -125,12 +112,6 @@ async function fetchWikiImage(soul: SoulEntry): Promise<string | null> {
   } catch {
     return null;
   }
-}
-
-function fetchPortrait(soul: SoulEntry): Promise<string | null> {
-  return soul.tags.some(t => ANIME_TAGS.has(t))
-    ? fetchMalImage(soul)
-    : fetchWikiImage(soul);
 }
 
 function AffectionChip({ label }: { label: string }) {
