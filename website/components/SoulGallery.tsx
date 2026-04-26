@@ -215,8 +215,8 @@ export default function SoulGallery() {
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Drag-to-scroll state
-  const drag = useRef({ active: false, startX: 0, scrollLeft: 0 });
+  // active: mouse is held down; moved: exceeded threshold (blocks link click)
+  const drag = useRef({ active: false, moved: false, startX: 0, scrollLeft: 0 });
 
   useEffect(() => {
     fetch(REGISTRY_URL)
@@ -228,23 +228,53 @@ export default function SoulGallery() {
       .catch(() => setLoading(false));
   }, []);
 
+  // Global mouseup so releasing outside the element always ends the drag
+  useEffect(() => {
+    const stop = () => {
+      if (!drag.current.active) return;
+      drag.current.active = false;
+      if (scrollRef.current) scrollRef.current.style.cursor = 'grab';
+    };
+    document.addEventListener('mouseup', stop);
+    return () => document.removeEventListener('mouseup', stop);
+  }, []);
+
   function onMouseDown(e: { pageX: number }) {
     const el = scrollRef.current;
     if (!el) return;
-    drag.current = { active: true, startX: e.pageX - el.offsetLeft, scrollLeft: el.scrollLeft };
-    el.style.cursor = 'grabbing';
+    drag.current = { active: true, moved: false, startX: e.pageX - el.offsetLeft, scrollLeft: el.scrollLeft };
   }
+
   function onMouseMove(e: { pageX: number; preventDefault(): void }) {
     if (!drag.current.active) return;
     const el = scrollRef.current;
     if (!el) return;
-    e.preventDefault();
     const x = e.pageX - el.offsetLeft;
-    el.scrollLeft = drag.current.scrollLeft - (x - drag.current.startX);
+    const delta = x - drag.current.startX;
+    if (Math.abs(delta) > 5) {
+      drag.current.moved = true;
+      el.style.cursor = 'grabbing';
+      e.preventDefault();
+      el.scrollLeft = drag.current.scrollLeft - delta;
+    }
   }
+
   function onMouseUp() {
     drag.current.active = false;
     if (scrollRef.current) scrollRef.current.style.cursor = 'grab';
+  }
+
+  // Capture-phase click handler: swallow the click if the user actually dragged
+  function onClickCapture(e: { stopPropagation(): void; preventDefault(): void }) {
+    if (drag.current.moved) {
+      e.stopPropagation();
+      e.preventDefault();
+      drag.current.moved = false;
+    }
+  }
+
+  function scrollBy(dir: -1 | 1) {
+    scrollRef.current?.scrollBy({ left: dir * 248, behavior: 'smooth' });
   }
 
   return (
@@ -259,12 +289,32 @@ export default function SoulGallery() {
             <h2 className="font-serif text-4xl md:text-5xl text-grimoire-gold leading-tight">
               Meet the Souls
             </h2>
-            <a
-              href="/grimoire/registry"
-              className="text-xs font-mono text-grimoire-muted hover:text-grimoire-gold transition-colors duration-200 shrink-0 pb-1"
-            >
-              View all →
-            </a>
+            <div className="flex items-center gap-3 pb-1">
+              <button
+                onClick={() => scrollBy(-1)}
+                aria-label="Scroll left"
+                className="w-7 h-7 rounded-full border border-grimoire-border flex items-center justify-center text-grimoire-muted hover:text-grimoire-gold hover:border-grimoire-gold/50 transition-colors duration-200"
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M7.5 2L3.5 6L7.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <button
+                onClick={() => scrollBy(1)}
+                aria-label="Scroll right"
+                className="w-7 h-7 rounded-full border border-grimoire-border flex items-center justify-center text-grimoire-muted hover:text-grimoire-gold hover:border-grimoire-gold/50 transition-colors duration-200"
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M4.5 2L8.5 6L4.5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <a
+                href="/grimoire/registry"
+                className="text-xs font-mono text-grimoire-muted hover:text-grimoire-gold transition-colors duration-200 shrink-0"
+              >
+                View all →
+              </a>
+            </div>
           </div>
           <p className="text-grimoire-muted text-sm mt-3 max-w-xl">
             Each soul is a living system — persistent memory, autonomous drift, and a relationship
@@ -284,7 +334,7 @@ export default function SoulGallery() {
           onMouseDown={onMouseDown}
           onMouseMove={onMouseMove}
           onMouseUp={onMouseUp}
-          onMouseLeave={onMouseUp}
+          onClickCapture={onClickCapture}
         >
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
